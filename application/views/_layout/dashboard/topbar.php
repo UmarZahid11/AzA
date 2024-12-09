@@ -105,7 +105,7 @@ $all_chat = $this->model_chat->find_all_active($all_param);
                     <?php if (isset($this->user_data['signup_is_stripe_connected']) && !$this->user_data['signup_is_stripe_connected'] && $this->model_signup->hasPremiumPermission()) : ?>
                         <a href="<?= l('dashboard/home/stripe/accounts') ?>" data-toggle="tooltip" data-bs-placement="left" title="<?= __("Connect to stripe to receive payments") ?>"><i class="fa fa-link text-custom"></i>&nbsp;<?= __('Connect your account with stripe') ?></a>
                     <?php endif; ?>
-                    <?php if ($this->model_signup->hasRole(ROLE_1)) : ?>
+                    <?php if (!$this->model_signup->hasPremiumPermission()) : ?>
                         <a href="<?= l('membership') ?>" data-toggle="tooltip" data-bs-placement="left" title="<?= __("You are currently a ") . $this->model_signup->getRawRole() . " member, you can upgrade your account to an " . RAW_ROLE_3 . "." ?>"><i class="fa fa-arrow-up text-custom"></i>&nbsp;<?php echo ERROR_MESSAGE_SUBSCRIPTION ?></a>
                     <?php endif; ?>
                     <?php if ((isset($this->user_data['signup_is_confirmed']) && !$this->user_data['signup_is_confirmed'])) : ?>

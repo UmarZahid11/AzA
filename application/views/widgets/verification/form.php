@@ -48,7 +48,12 @@
                 <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
                 </div>
                 <div class="col-9 col-sm-9 col-md-9 col-lg-9 col-xl-9 col-xxl-9">
-                    <a href="<?= l('home/premium') ?>"
+                    <a 
+                    <?php if($this->user_data['signup_is_phone_confirmed']) : ?>
+                        href="<?= l('home/premium') ?>"
+                    <?php else : ?>
+                        href="<?= l('dashboard') ?>"
+                    <?php endif; ?>
                         class="btn btn-custom" id="proceedBtn">Proceed <i class="fa fa-arrow-right text-white font-12"></i>
                     </a>
                 </div>

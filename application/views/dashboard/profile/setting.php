@@ -7,7 +7,7 @@
         
         <?php $this->load->view('widgets/verification/form.php'); ?>
 
-        <?php if ($this->model_signup->inRole([ROLE_1, ROLE_3])) : ?>
+        <?php if ($this->model_signup->hasPremiumPermission()) : ?>
             <form action="javascript:;" class="identityVerificationForm" method="POST">
                 <input type="hidden" name="_token" value="<?= $this->csrf_token; ?>" />
                 <input type="hidden" name="signup[signup_vouched_token]" />

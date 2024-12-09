@@ -462,6 +462,7 @@ echo create_modal_html("view_product", "Detail");
             }).then(
                 function(response) {
                     if(response.status) {
+                        $('#datatable_ajax').dataTable().api().ajax.reload();
                         setTimeout(function() {
                             $('[data-toggle="tooltip"]').tooltip();
                         }, 1000);

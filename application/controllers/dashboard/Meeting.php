@@ -906,7 +906,7 @@ class Meeting extends MY_Controller
         $updated = FALSE;
 
         if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
-            if (!$this->model_signup->hasRole(ROLE_1)) {
+            if ($this->model_signup->hasPremiumPermission()) {
                 if (isset($_POST) && isset($_POST['meeting_request']['meeting_request_reference_id'])) {
 
                     $reference = $this->model_product->find_one_active(

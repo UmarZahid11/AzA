@@ -56,7 +56,7 @@ class Signup extends MY_Controller
             $type = ROLE_1;
         }
 
-        if (!in_array($type, [ROLE_1, ROLE_3])) {
+        if (!in_array($type, [ROLE_1, ROLE_3, ROLE_4, ROLE_5])) {
             redirect(l('signup') . (isset($_GET['redirect_url']) ? '?redirect_url=' . urlencode($_GET['redirect_url']) : ''));
         }
 

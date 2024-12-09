@@ -595,8 +595,8 @@ class Signup extends MY_Controller
             $signup = $this->model_signup->find_by_pk($id);
 
             if (!empty($signup)) {
-                if (in_array($signup['signup_type'], [ROLE_1, ROLE_3])) {
-                    if(($signup['signup_type'] == ROLE_1 && $signup['signup_trial_expiry'] != '') || ($signup['signup_type'] == ROLE_3 && $signup['signup_subscription_status'] == SUBSCRIPTION_TRIAL && $signup['signup_trial_expiry'] != '')) {
+                if (in_array($signup['signup_type'], [ROLE_1, ROLE_3, ROLE_4, ROLE_5])) {
+                    if((($signup['signup_type'] == ROLE_1 && $signup['signup_trial_expiry'] != '') || ($signup['signup_type'] == ROLE_3 && $signup['signup_subscription_status'] == SUBSCRIPTION_TRIAL && $signup['signup_trial_expiry'] != '')) || $signup['signup_lifetime_subscription']) {
                         $json_param['status'] = STATUS_TRUE;
                         $json_param['txt'] = SUCCESS_MESSAGE;
                         $json_param['data'] = $signup;

@@ -564,11 +564,11 @@ class Custom extends MY_Controller
                 $this->session->set_flashdata('error', __('Unable to find requested user profile!'));
                 redirect(l('dashboard'));
             } else {
-                if ($signup['signup_type'] == ROLE_3) {
+                if (in_array($signup['signup_type'], [ROLE_0, ROLE_3, ROLE_4, ROLE_5])) {
                     redirect(l('dashboard/profile/detail/' . JWT::encode($signup['signup_id'], CI_ENCRYPTION_SECRET) . '/' . $signup['signup_type']));
-                } elseif ($signup['signup_type'] == ROLE_1) {
-                    $this->session->set_flashdata('error', __('Cannot preview a general user\'s profile!'));
-                    redirect(l('dashboard'));
+                // } elseif ($signup['signup_type'] == ROLE_1) {
+                //     $this->session->set_flashdata('error', __('Cannot preview a general user\'s profile!'));
+                //     redirect(l('dashboard'));
                 } else {
                     $this->session->set_flashdata('error', __('Unable to find requested user profile!'));
                     redirect(l('dashboard'));

@@ -128,13 +128,14 @@ class Box extends MY_Controller
             $data['non_box_users'] = $this->model_signup->find_all_active(
                 array(
                     'where_not_in' => array(
-                        'signup_type' => [ROLE_1, ROLE_0],
+                        'signup_type' => [ROLE_0],
                     ),
                     'where_is_null' => array(
                         'signup_box_id'
                     )
                 )
             );
+            // ROLE_1, 
         }
 
         $this->load_view('save', $data);

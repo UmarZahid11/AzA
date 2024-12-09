@@ -53,7 +53,7 @@ class Profile extends MY_Controller
             error_404();
         }
 
-        if (!is_int($type) || !in_array($type, [ROLE_1, ROLE_3])) {
+        if (!is_int($type) || !in_array($type, [ROLE_1, ROLE_3, ROLE_4, ROLE_5])) {
             error_404();
         }
 

@@ -255,31 +255,31 @@
 
         <li class="nav-item" role="presentation">
 
-            <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true" data-toggle="tooltip" data-bs-placement="top" title="<?= ($this->model_signup->hasRole(ROLE_1) || $this->userid == 0) ? 'Job details will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job detail') ?></a>
+            <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true" data-toggle="tooltip" data-bs-placement="top" title="<?= (!$this->model_signup->hasPremiumPermission() || $this->userid == 0) ? 'Job details will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job detail') ?></a>
 
         </li>
 
         <li class="nav-item" role="presentation">
 
-            <a class="nav-link" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true" data-toggle="tooltip" data-bs-placement="top" title="<?= ($this->model_signup->hasRole(ROLE_1) || $this->userid == 0) ? 'Work description will be viewable once you upgrade your membership.' : '' ?>"><?= __('Work description') ?></a>
+            <a class="nav-link" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true" data-toggle="tooltip" data-bs-placement="top" title="<?= (!$this->model_signup->hasPremiumPermission() || $this->userid == 0) ? 'Work description will be viewable once you upgrade your membership.' : '' ?>"><?= __('Work description') ?></a>
 
         </li>
 
         <li class="nav-item" role="presentation">
 
-            <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= ($this->model_signup->hasRole(ROLE_1) || $this->userid == 0) ? 'Company details will be viewable once you upgrade your membership.' : '' ?>"><?= __('About company') ?></a>
+            <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= (!$this->model_signup->hasPremiumPermission() || $this->userid == 0) ? 'Company details will be viewable once you upgrade your membership.' : '' ?>"><?= __('About company') ?></a>
 
         </li>
 
         <li class="nav-item" role="presentation">
 
-            <a class="nav-link" id="video-tab" data-bs-toggle="tab" href="#video" role="tab" aria-controls="video" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= ($this->model_signup->hasRole(ROLE_1) || $this->userid == 0) ? 'Job video will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job video') ?></a>
+            <a class="nav-link" id="video-tab" data-bs-toggle="tab" href="#video" role="tab" aria-controls="video" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= (!$this->model_signup->hasPremiumPermission() || $this->userid == 0) ? 'Job video will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job video') ?></a>
 
         </li>
 
         <li class="nav-item" role="presentation">
 
-            <a class="nav-link" id="question-tab" data-bs-toggle="tab" href="#question" role="tab" aria-controls="question" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= ($this->model_signup->hasRole(ROLE_1) || $this->userid == 0) ? 'Job questions will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job questions') ?></a>
+            <a class="nav-link" id="question-tab" data-bs-toggle="tab" href="#question" role="tab" aria-controls="question" aria-selected="false" data-toggle="tooltip" data-bs-placement="top" title="<?= (!$this->model_signup->hasPremiumPermission() || $this->userid == 0) ? 'Job questions will be viewable once you upgrade your membership.' : '' ?>"><?= __('Job questions') ?></a>
 
         </li>
 

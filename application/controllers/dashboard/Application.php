@@ -164,7 +164,7 @@ class Application extends MY_Controller
      */
     public function detail(string $jobApplicationId = '', int $jobId = 0): void
     {
-        if ($this->model_signup->hasRole(ROLE_1)) {
+        if (!$this->model_signup->hasPremiumPermission()) {
             error_404();
         }
         if (!$jobApplicationId || !$jobId) {
