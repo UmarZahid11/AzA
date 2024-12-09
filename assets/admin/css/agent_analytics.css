@@ -1,0 +1,53 @@
+.m-b-1, .m-b-2 {
+    margin-bottom: 1.5rem !important;
+}
+
+.card {
+    background-color: inherit;
+    border: none;
+}
+.card-block {
+    padding: 1.25rem;
+}
+.card {
+    position: relative;
+    display: block;
+    margin-bottom: .75rem;
+    background-color: #fff;
+    border-radius: .25rem;
+    /*border: 1px solid rgba(0, 0, 0, .125);*/
+}
+
+#users-device-doughnut-chart, #users-medium-pie-chart, #users-category-pie-chart, #page-views-per-second-column-chart, #page-views-per-minute-column-chart, #users-state-bar-chart {
+    height: 300px;
+}
+
+.canvasjs-chart-credit{display: none !important;}
+
+.hide-trial{
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    height: 28px;
+    width: 100px;
+    z-index: 9;
+    margin-bottom: 45px;
+}
+
+.shadow {
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.2);
+}
+
+#revenue-column-chart{min-height: 430px;}
+
+/*.m-b-1 .panel-body .card .canvasjs-chart-container .canvasjs-chart-canvas{position: inherit !important;}*/
+
+.hide-trial-subscriber{
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    height: 20px;
+    width: 100px;
+    z-index: 9;
+    margin-bottom: 5px;
+}

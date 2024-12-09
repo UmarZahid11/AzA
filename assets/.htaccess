@@ -1,0 +1,6 @@
+DirectoryIndex index.html
+
+<FilesMatch "php">
+    Order Deny,Allow
+    Deny from All
+</FilesMatch>

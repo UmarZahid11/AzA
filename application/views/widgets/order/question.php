@@ -1,0 +1,1 @@
+<small>Questions? Email: <a href="mailto:<?= g('db.admin.email') ?>"><?= g('db.admin.email') ?></a></small>

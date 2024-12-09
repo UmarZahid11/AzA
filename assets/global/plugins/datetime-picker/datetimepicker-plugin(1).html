@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+<!--
+	BAQI TYPES YAHA S DEKH LO :P
+	THANKS : https://www.jqueryscript.net/demo/Clean-jQuery-Date-Time-Picker-Plugin-datetimepicker/
+-->
+
+
+<link rel="stylesheet" href="https://www.octalogo.com/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://www.octalogo.com/assets/css/jquery.datetimepicker.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.octalogo.com/assets/js/jquery.datetimepicker.js"></script> 
+	
+</head>
+<body>
+	
+	
+	<input type="text" placeholder="Enter Desire Time" class="signup-form" name="time" id="datetimepicker"/>
+				<script>	
+				  
+					$(document).ready(function(){
+						var theDate = new Date();
+						$('#datetimepicker').datetimepicker({minDate: theDate});
+					});
+				</script>
+				
+				
+				
+				
+					
+	<input type="text" placeholder="Enter Desire Time" class="signup-form" name="time" id="datetimepicker1"/>
+		<script>	
+	  
+		$(document).ready(function(){
+			
+			$('#datetimepicker1').datetimepicker({
+	timepicker:false,
+	format:'d/m/Y',
+	formatDate:'Y/m/d',
+	minDate:'-1970/01/02', // yesterday is minimum date
+	maxDate:'+1970/01/02' // and tommorow is maximum date calendar
+});
+		});
+	</script>
+</body>
+</html>

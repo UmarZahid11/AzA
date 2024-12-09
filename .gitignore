@@ -1,0 +1,9 @@
+/application/config/my_config.php
+/application/libraries/vendor/
+/application/libraries/stripe-php/
+/system/
+/quickbook_downloads/
+/Tutorial/
+/Back/
+/application/logs/
+/assets/uploads/
