@@ -67,6 +67,7 @@
                                                             break;
                                                         case '1':
                                                             echo '<img src="' . g('images_root') . 'tick.png" alt="" />';
+                                                            break;
                                                     }
                                                 }
                                             ?>
