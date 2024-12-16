@@ -231,7 +231,7 @@ class Signup extends MY_Controller
                         $json_param['redirect_url'] = urldecode($_POST['redirect_url']);
                     } else {
                         if($inserted_param['signup_type'] == ROLE_3) {
-                            $json_param['redirect_url'] = l('membership/payment/') . ROLE_3 . '/' . JWT::encode(SUBSCRIPTION_INTERVAL_1);
+                            $json_param['redirect_url'] = l('membership/payment/') . JWT::decode(ROLE_3);
                         } else {
                             $json_param['redirect_url'] = l('dashboard/profile/create');
                         }

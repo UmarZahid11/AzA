@@ -77,7 +77,7 @@
                                     <?php if($this->model_membership->isCurrentMembership($membershipKey)) : ?>
                                         <h3>Active</h3>
                                     <?php else: ?>
-                                        <?php if(!in_array($membershipKey, [ROLE_1, ROLE_5])) : ?>
+                                        <?php if(!in_array($membershipKey, [ROLE_5])) : ?>
                                             <h3><a href="<?= $this->userid == 0 ? l('login') : (l('membership/payment/') . JWT::encode($data['membership']['membership_id'])) ?>">Select</a></h3>
                                         <?php endif; ?>
                                     <?php endif; ?>

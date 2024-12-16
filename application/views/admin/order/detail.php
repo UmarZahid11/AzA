@@ -92,7 +92,7 @@ switch ($order['order_reference_type']) {
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="responseModalLabel"><?= $order['order_stripe_charge_id'] ? 'Charge response' : ($order['order_stripe_session_chekout_id'] ? 'Checkout session response' : 'Response'); ?></h5>
+                                            <h5 class="modal-title" id="responseModalLabel"><?= $order['order_stripe_charge_id'] ? 'Charge response' : ($order['order_stripe_session_checkout_id'] ? 'Checkout session response' : 'Response'); ?></h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>

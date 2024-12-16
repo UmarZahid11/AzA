@@ -148,7 +148,7 @@ class Membership extends MY_Controller
      *
      * @return void
      */
-    public function payment(string $id = '', string $interval = '', $merchant = STRIPE): void
+    public function payment(string $id = '', string $interval = SUBSCRIPTION_INTERVAL_1, $merchant = STRIPE): void
     {
         if (!$id) {
             $this->session->set_flashdata('error', __('Error in finding requested membership!'));
@@ -170,31 +170,9 @@ class Membership extends MY_Controller
             }            
         }
 
-        if (!$interval) {
-            $interval = SUBSCRIPTION_INTERVAL_1;
-        } else {
-            try {
-                $interval = JWT::decode($interval, CI_ENCRYPTION_SECRET);
-            } catch (\Exception $e) {
-                log_message('ERROR', $e->getMessage());
-                //
-                $this->_log_message(
-                    LOG_TYPE_GENERAL,
-                    LOG_SOURCE_SERVER,
-                    LOG_LEVEL_ERROR,
-                    $e->getMessage(),
-                    ''
-                );
-                error_404();
-            }
-        }
-
-        if (!in_array($interval, [SUBSCRIPTION_INTERVAL_1, SUBSCRIPTION_INTERVAL_2, SUBSCRIPTION_INTERVAL_3]))
+        if (!in_array($interval, [SUBSCRIPTION_INTERVAL_1]))
             error_404();
-
-        $data['error'] = false;
-        $data['errorMessage'] = __(ERROR_MESSAGE);
-        
+       
         $data['merchant'] = $merchant;
 
         //
@@ -213,14 +191,20 @@ class Membership extends MY_Controller
                 redirect(l('membership'));
                 break;
                 // already has a membership other than general?
-            case (isset($this->user_data['signup_membership_status']) && $this->user_data['signup_membership_status'] == SUBSCRIPTION_ACTIVE && $this->user_data['signup_membership_id'] != ROLE_1):
+            case (
+                    (
+                        isset($this->user_data['signup_membership_status']) && 
+                        $this->user_data['signup_membership_status'] == SUBSCRIPTION_ACTIVE &&
+                        $data['membership']['membership_id'] == $this->user_data['signup_membership_id']
+                    )
+                ):
                 $this->session->set_flashdata('error', __('A membership package is already active.'));
                 redirect(l('membership'));
                 break;
-            case ($data['membership']['membership_cost'] == 0) :
-                $this->session->set_flashdata('error', __('Cannot subscribe to the package of 0 cost.'));
-                redirect(l('membership'));
-                break;
+            // case ($data['membership']['membership_cost'] == 0) :
+            //     $this->session->set_flashdata('error', __('Cannot subscribe to the package of 0 cost.'));
+            //     redirect(l('membership'));
+            //     break;
                 // 	is approved by admin?
             // case ((isset($this->user_data['signup_is_approved']) && !$this->user_data['signup_is_approved']) && (!$this->model_signup_bypass_privilege->get($this->userid, PRIVILEGE_TYPE_APPROVAL, TRUE))):
             //     $this->session->set_flashdata('error', __('Error: The account approval is pending. Try contacting the website administrator for approval.'));
@@ -243,53 +227,112 @@ class Membership extends MY_Controller
         $param['where']['inner_banner_name'] = 'Membership Payment';
         $data['banner'] = $this->model_inner_banner->find_one_active($param);
 
-        $membershipCost = 0;
+        $shippment_price = 0;
+        $data['new_membership'] = FALSE;
+        $data['free_membership'] = FALSE;
+        $data['membership_updated'] = FALSE;
+        $data['membership_cancelled'] = FALSE;
 
-        // $param = array();
-        // $param['where']['membership_pivot_attribute_id'] = COST_ATTRIBUTE;
-        // $param['where']['membership_pivot_membership_id'] = $id;
-        // $membership_pivot = $this->model_membership_pivot->find_one($param);
+        $data['merchant_session'] = $merchant_session = '';
 
-        // $membershipCost = (!empty($membership_pivot) && intval($membership_pivot['membership_pivot_value'])) ? $membership_pivot['membership_pivot_value'] : 0;
         $membershipCost = $data['membership']['membership_cost'];
 
         if ($membershipCost == '0' || $membershipCost == NULL) {
-            $data['error'] = true;
-            $data['errorMessage'] = "Error occurred while subscribing to the respective membership, Please try contacting site administrator.";
+            $data['free_membership'] = TRUE;
         } else {
             //
-            // $membershipCost *= $interval;
             switch ($interval) {
                 case SUBSCRIPTION_INTERVAL_1:
                     $membershipCost = $membershipCost;
                     break;
-                case SUBSCRIPTION_INTERVAL_2:
-                    $membershipCost = (float) SUBSCRIPTION_INTERVAL_2_COST;
-                    break;
-                case SUBSCRIPTION_INTERVAL_3:
-                    $membershipCost = (float) SUBSCRIPTION_INTERVAL_3_COST;
-                    break;
             }
         }
-        
-        $data['merchant_session'] = $merchant_session = '';
 
-        switch($merchant) {
-            case STRIPE:
-                $data['merchant_session'] = $merchant_session = $this->setupStripeCustomerPayment($data['membership'], (float) $membershipCost, (int) $interval);
-                break;
-            case PAYPAL:
-                // plan is fetched
-                $data['merchant_session'] = $merchant_session = $this->setupPaypalCustomerPayment($data['membership'], (float) $membershipCost, (int) $interval);
-                break;
+        // cancel or update previous subscription if active
+        if($this->user_data['signup_subscription_id']) {
+            if($this->user_data['signup_merchant'] == STRIPE) {
+
+                //
+                $previous_subscription = $this->user_data['signup_subscription_id'];
+                $previous_subscription_detail = $this->resource('subscriptions', $previous_subscription);
+
+                //
+                if($previous_subscription_detail && isset($previous_subscription_detail->plan) && $previous_subscription_detail->plan->active == 1) {
+                    if($data['free_membership']) {
+                        // cancel previous subscription if active
+                        // $this->stripe->subscriptions->cancel($this->user_data['signup_subscription_id'], []);
+                        $data['membership_cancelled'] = TRUE;
+                    } else {
+                        if(isset($previous_subscription_detail->items) && $previous_subscription_detail->items->data[0]->id) {
+                            $subscription_item_id = $previous_subscription_detail->items->data[0]->id;
+
+                            // update membership from previous membership
+                            switch($data['membership']['membership_id']) {
+                                case ROLE_3:
+                                    $product_title = MEMBERSHIP_PRODUCT_ENTREPRENEUR_TITLE; 
+                                    break;
+                                case ROLE_4:
+                                    $product_title = MEMBERSHIP_PRODUCT_INNOVATOR_TITLE; 
+                                    break;
+                                case ROLE_5:
+                                    $product_title = MEMBERSHIP_PRODUCT_LEADER_TITLE; 
+                                    break;
+                            }
+            
+                            $product = $this->createStripeResource('products', [
+                                'name' => $product_title
+                            ]);
+                            $price = $this->createStripeResource('prices', [
+                                'unit_amount' => $membershipCost * 100,
+                                'currency' => DEFAULT_CURRENCY_CODE,
+                                'product' => $product->id,
+                                'recurring' => array(
+                                    'interval' => SUBSCRIPTION_INTERVAL_TYPE,
+                                    'interval_count' => $interval,
+                                ),
+                            ]);
+                            $this->stripe->subscriptions->update(
+                                $this->user_data['signup_subscription_id'],
+                                [
+                                    'items' => [
+                                        [
+                                            'id' => $subscription_item_id,
+                                            'price' => $price->id,
+                                        ],
+                                    ],
+                                ]
+                            );
+                            $data['membership_updated'] = TRUE;
+                        }
+                    }
+                } else {
+                    $data['new_membership'] = TRUE;
+                }
+            }
+        } else {
+            $data['new_membership'] = TRUE;
         }
 
-        // create entry in order table
-        $shippment_price = 0;
+        if($data['new_membership'] || ($data['free_membership'] && !$data['membership_cancelled']) && !$data['membership_updated']) {
 
-        if (!$data['error']) {
             $insertParam = array();
+            $insertedOrder = 0;
+            $paypal_error = FALSE;
 
+            //
+            if(!$data['free_membership']) {
+                switch($merchant) {
+                    case STRIPE:
+                        $data['merchant_session'] = $merchant_session = $this->setupStripeCustomerPayment($data['membership'], (float) $membershipCost, (int) $interval);
+                        break;
+                    case PAYPAL:
+                        // plan is fetched
+                        $data['merchant_session'] = $merchant_session = $this->setupPaypalCustomerPayment($data['membership'], (float) $membershipCost, (int) $interval);
+                        break;
+                }
+            }
+
+            //
             $insertParam['order_user_id'] = $this->userid;
             $insertParam['order_email'] = $this->user_data['signup_email'];
             $insertParam['order_firstname'] = $this->user_data['signup_firstname'];
@@ -298,27 +341,30 @@ class Membership extends MY_Controller
             $insertParam['order_address1'] = $this->user_data['signup_address'];
             $insertParam['order_city'] = $this->user_data['signup_city'];
             $insertParam['order_zip'] = $this->user_data['signup_zip'];
+
             // $id -> membership_id
             $insertParam['order_reference_id'] = $id;
             // order type = 1 => membership
             $insertParam['order_reference_type'] = ORDER_REFERENCE_MEMBERSHIP;
+
+            //
             $insertParam['order_quantity'] = $interval;
             $insertParam['order_total'] = $membershipCost;
             $insertParam['order_shipping'] = $shippment_price;
             $insertParam['order_amount'] = $insertParam['order_total'] + $shippment_price;
+            $insertParam['order_shipment_price'] = price($shippment_price);
+            $insertParam['order_merchant'] = $merchant;
+            $insertParam['order_currency'] = DEFAULT_CURRENCY_CODE;
+
+            //
             $insertParam['order_status'] = STATUS_INACTIVE;
             $insertParam['order_payment_status'] = STATUS_INACTIVE;
             $insertParam['order_status_message'] = "Pending";
             $insertParam['order_payment_comments'] = "Unpaid";
-            $insertParam['order_shipment_price'] = price($shippment_price);
-            $insertParam['order_merchant'] = $merchant;
-            $insertParam['order_currency'] = DEFAULT_CURRENCY_CODE;
-            
-            $paypal_error = FALSE;
-            
+
             switch($merchant) {
                 case STRIPE:
-                    $insertParam['order_stripe_session_chekout_id'] = $merchant_session ? $merchant_session->id : '';
+                    $insertParam['order_stripe_session_checkout_id'] = $merchant_session ? $merchant_session->id : '';
                     // response in raw json format
                     $insertParam['order_stripe_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $merchant_session);
                     break;
@@ -334,9 +380,9 @@ class Membership extends MY_Controller
                     break;
             }
 
-            $insertedOrder = 0;
             if(!$paypal_error) {
                 $insertedOrder = $this->model_order->insert_record($insertParam);
+                $data['order'] = $this->model_order->find_by_pk($insertedOrder);
             }
 
             if (!$insertedOrder) {
@@ -352,6 +398,78 @@ class Membership extends MY_Controller
                 $insertParam['order_item_subtotal'] = $membershipCost;
                 $insertParam['order_item_qty'] = $interval;
                 $this->model_order_item->insert_record($insertParam);
+            }
+        } else {
+
+            // for stripe only
+            $data['order'] = $this->model_order->find_one_active(
+                array(
+                    'where' => array(
+                        'order_stripe_session_checkout_id' => $this->user_data['signup_session_id']
+                    ),
+                )
+            );
+            
+            if($data['order']) {
+
+                if($data['membership_cancelled']) {
+                    $affectParam['order_stripe_session_checkout_id'] = '';
+                    $affectParam['order_stripe_transaction_id'] = '';
+                    $affectParam['order_stripe_response'] = '';
+                    // $affectParam['order_payment_status'] = SUBSCRIPTION_CANCELLED;
+                } else {
+                    $affectParam['order_payment_status'] = SUBSCRIPTION_ACTIVE;
+                }
+
+                if($data['free_membership']) {
+                    $affectParam['order_status'] = STATUS_ACTIVE;
+                    $affectParam['order_status_message'] = "Completed";
+                    $affectParam['order_payment_comments'] = "paid";    
+                }
+    
+                $affectParam['order_reference_id'] = $id;
+                $affectParam['order_total'] = $membershipCost;
+                $affectParam['order_amount'] = $membershipCost + $shippment_price;
+
+                //
+                $this->model_order->update_by_pk(
+                    $data['order']['order_id'],
+                    $affectParam
+                );
+
+                //
+                $this->model_order_item->update_model(
+                    array(
+                        'where' => array(
+                            'order_item_order_id' => $data['order']['order_id']
+                        )
+                    ),
+                    array(
+                        'order_item_price' => $membershipCost,
+                        'order_item_subtotal' => $membershipCost
+                    )
+                );
+            }
+
+            $affectParam = [];
+
+            // remove subscription ids from signup
+            if($data['membership_cancelled']) {
+
+                $affectParam = [
+                    'signup_type' => $data['membership']['membership_id'],
+                    'signup_subscription_id' => '',
+                    'signup_subscription_response' => '',
+                    'signup_session_id' => '',
+                    'signup_session_response' => '',
+                    'signup_customer_id' => '',
+                    'signup_customer_response' => '',
+                ];
+
+                $this->model_signup->update_by_pk(
+                    $this->userid, 
+                    $affectParam
+                );
             }
         }
 
@@ -382,7 +500,7 @@ class Membership extends MY_Controller
 
         // $query = 'SELECT * FROM `fb_order`';
         // $query .= ' where order_user_id = ' . $this->userid;
-        // $query .= ' AND (order_stripe_session_chekout_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
+        // $query .= ' AND (order_stripe_session_checkout_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
         // $order = ($this->db->query($query)->row_array());
         // if (empty($order))
         //     error_404();
@@ -449,6 +567,7 @@ class Membership extends MY_Controller
                             'signup_membership_status' => STATUS_ACTIVE,
                             'signup_subscription_id' => $session->subscription,
                             // response in raw json format
+                            'signup_session_id' => $session->id,
                             'signup_session_response' => str_replace('Stripe\Checkout\Session JSON:', '', (string) $session),
                             // response in raw json format
                             'signup_customer_id' => isset($data['customer']->id) ? $data['customer']->id : '',
@@ -471,7 +590,7 @@ class Membership extends MY_Controller
                             $updatedOrder = $this->model_order->update_model(
                                 array('where' => array(
                                     'order_user_id' => $this->userid,
-                                    'order_stripe_session_chekout_id' => $checkoutSessionId
+                                    'order_stripe_session_checkout_id' => $checkoutSessionId
                                 )),
                                 array(
                                     'order_payment_status' => $this->model_membership->subscriptionStatus($subscription->status),
@@ -479,7 +598,7 @@ class Membership extends MY_Controller
                                     'order_stripe_transaction_id' => $subscription->id,
                                     // response in raw json format
                                     // updated response of stripe session
-                                    'order_stripe_response' => str_replace('Stripe\Checkout\Session JSON:', '', serialize($session)),
+                                    'order_stripe_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
                                     'order_status_message' => $this->model_membership->subscriptionStatusString($this->model_membership->subscriptionStatus($subscription->status)),
                                 )
                             );
@@ -567,6 +686,43 @@ class Membership extends MY_Controller
                         error_404();
                     }
                     break;
+                case FREE:
+                    if($checkoutSessionId) {
+                        try {
+                            $checkoutSessionId = JWT::decode($checkoutSessionId, CI_ENCRYPTION_SECRET);
+                        } catch (\Exception $e) {
+                            log_message('ERROR', $e->getMessage());
+                            //
+                            $this->_log_message(
+                                LOG_TYPE_GENERAL,
+                                LOG_SOURCE_SERVER,
+                                LOG_LEVEL_ERROR,
+                                $e->getMessage(),
+                                ''
+                            );
+                            error_404();
+                        }    
+                    } else {
+                        error_404();            
+                    }
+                    $subscriptionArray = array(
+                        'signup_type' => $membershipId,
+                        'signup_membership_id' => $membershipId,
+                        'signup_membership_status' => STATUS_ACTIVE,
+                    );
+                    $updatedSignup = $this->model_signup->update_by_pk($this->userid, $subscriptionArray);
+        
+                    $updatedOrder = $this->model_order->update_model(
+                        array('where' => array(
+                            'order_user_id' => $this->userid,
+                            'order_id' => $checkoutSessionId
+                        )),
+                        array(
+                            'order_payment_status' => SUBSCRIPTION_ACTIVE,
+                            'order_status' => STATUS_ACTIVE,
+                        )
+                    );
+                    break;
                 default:
                     error_404();
             }
@@ -580,7 +736,7 @@ class Membership extends MY_Controller
                 $this->model_notification->sendNotification($this->userid, $this->userid, NOTIFICATION_MEMBERSHIP_SUCCESS, 0, NOTIFICATION_MEMBERSHIP_SUCCESS_COMMENT);
                 //
                 if($checkoutSessionId) {
-                    $this->send_invoice($checkoutSessionId);
+                    $this->send_invoice($checkoutSessionId, $merchant);
                 }
             } catch (\Exception $e) {
                 $this->session->set_flashdata('error', $e->getMessage());
@@ -593,6 +749,8 @@ class Membership extends MY_Controller
                     ''
                 );
             }
+        } else {
+            $data['status'] = $status = 'unknown';
         }
 
         //
@@ -608,38 +766,46 @@ class Membership extends MY_Controller
      *
      * @return void
      */
-    public function send_invoice($checkoutSessionId)
+    public function send_invoice($checkoutSessionId = '', $merchant = STRIPE)
     {
-        $order_details = $this->model_order->find_one_active(
-            array(
-                'where' => array(
-                    'order_user_id' => $this->userid,
-                    'order_stripe_session_chekout_id' => $checkoutSessionId
-                ),
-                'joins' => array(
-                    0 => array(
-                        'table' => 'membership',
-                        'joint' => 'membership.membership_id = order.order_reference_id',
-                        'type' => 'both',
+        if($checkoutSessionId) {
+
+            $where_array = [];
+            $where_array['order_user_id'] = $this->userid;
+            if($merchant == FREE) {
+                $where_array['order_id'] = $checkoutSessionId;
+            } else {
+                $where_array['order_stripe_session_checkout_id'] = $checkoutSessionId;
+            }
+
+            $order_details = $this->model_order->find_one_active(
+                array(
+                    'where' => $where_array,
+                    'joins' => array(
+                        0 => array(
+                            'table' => 'membership',
+                            'joint' => 'membership.membership_id = order.order_reference_id',
+                            'type' => 'both',
+                        )
                     )
                 )
-            )
-        );
+            );
 
-        if (ENVIRONMENT != 'development' && $order_details) {
-            try {
-                $this->model_email->notification_order_invoice($order_details['order_id'], 'USER');
-                $this->model_email->notification_order_invoice($order_details['order_id'], 'Admin');
-            } catch (\Exception $e) {
-                $this->session->set_flashdata('error', $e->getMessage());
-                //
-                $this->_log_message(
-                    LOG_TYPE_GENERAL,
-                    LOG_SOURCE_SERVER,
-                    LOG_LEVEL_ERROR,
-                    $e->getMessage(),
-                    ''
-                );
+            if (ENVIRONMENT != 'development' && $order_details) {
+                try {
+                    $this->model_email->notification_order_invoice($order_details['order_id'], 'USER');
+                    $this->model_email->notification_order_invoice($order_details['order_id'], 'Admin');
+                } catch (\Exception $e) {
+                    $this->session->set_flashdata('error', $e->getMessage());
+                    //
+                    $this->_log_message(
+                        LOG_TYPE_GENERAL,
+                        LOG_SOURCE_SERVER,
+                        LOG_LEVEL_ERROR,
+                        $e->getMessage(),
+                        ''
+                    );
+                }
             }
         }
     }

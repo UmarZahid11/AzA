@@ -47,8 +47,9 @@ class Model_membership extends MY_Model
      * @param integer $membership_id
      * @return boolean
      */
-    public function isCurrentMembership(int $membership_id) : bool {
-        if($this->userid > 0) {
+    public function isCurrentMembership(int $membership_id): bool
+    {
+        if ($this->userid > 0) {
             $membership = $this->model_signup->find_one(
                 array(
                     'where' => array(
@@ -59,92 +60,13 @@ class Model_membership extends MY_Model
                 )
             );
 
-            if($membership) {
+            if ($membership) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Method displayStripeButtons
-     *
-     * @param int $interval
-     *
-     * @return string
-     */
-    function displayStripeButtons(int $interval = SUBSCRIPTION_INTERVAL_1): string
-    {
-        $membership = $this->model_membership->find_all_active(
-            array(
-                'order' => 'membership_id asc',
-                'limit' => 3,
-                'where' => array(
-                    'membership_id' => 3
-                )
-            )
-        );
-
-        $return_html = '<div class="row">';
-
-        if (isset($membership) && count($membership) > 0) {
-
-            $return_html .= '<div class="col-3"></div>';
-
-            foreach ($membership as $value) {
-
-                $return_html .= '<div class="col-9">';
-
-                if (isset($value['membership_id'])) {
-
-                    $order_details = $this->model_order->find_one_active(
-                        array(
-                            'where' => array(
-                                'order_user_id' => $this->userid,
-                                'order_reference_type' => ORDER_REFERENCE_MEMBERSHIP,
-                                'order_reference_id' => $value['membership_id'],
-                                'order_payment_status' => 1,
-                                'order_status' => 1,
-                                'order_status_message' => 'Completed',
-                            )
-                        )
-                    );
-
-                    $setActive = FALSE;
-                    if ($order_details && $order_details['order_quantity'] == $interval) {
-                        $setActive = TRUE;
-                    } elseif ((isset($this->user_data['signup_membership_status']) && $this->user_data['signup_membership_status'] && isset($this->user_data['signup_type']) && $this->user_data['signup_type'] == ROLE_1)) {
-                        $setActive = TRUE;
-                    }
-
-                    $cost = $this->model_membership_pivot->raw_pivot_value($value['membership_id'], COST_ATTRIBUTE);
-                    switch ($interval) {
-                        case SUBSCRIPTION_INTERVAL_1:
-                            $cost = $cost == 0 ? price(0) : (price($cost));
-                            break;
-                        case SUBSCRIPTION_INTERVAL_2:
-                            $cost = $cost == 0 ? price(0) : price(SUBSCRIPTION_INTERVAL_2_COST);
-                            break;
-                        case SUBSCRIPTION_INTERVAL_3:
-                            $cost = $cost == 0 ? price(0) : price(SUBSCRIPTION_INTERVAL_3_COST);
-                            break;
-                    }
-                    $return_html .= '<a href="' . l('membership/payment/') . $value['membership_id'] . '/' . JWT::encode($interval) . '" class="btn-mem '
-                        . ((isset($this->user_data['signup_membership_status']) && $this->user_data['signup_membership_status'] && ($this->user_data['signup_type'] != ROLE_1 || $this->user_data['signup_type'] == $value['membership_id'])) ? 'pe-none' : '')
-                        . (((isset($this->user_data['signup_type']) && ($this->user_data['signup_type'] == $value['membership_id']) && ($setActive)) ? ' active' : '')) . '">'
-                        . (((isset($this->user_data['signup_type']) && $this->user_data['signup_type'] == $value['membership_id']) && ($setActive)) ? 'Active' : ('Pay ' . ($cost) . ' ' . 'with Credit/Debit card'));
-                    $return_html .= '</a>';
-                }
-
-                $return_html .= '</div>';
-            }
-        }
-
-        $return_html .= '</div>';
-
-        return $return_html;
-    }
-    
     function displayPaypalButtons(int $interval = SUBSCRIPTION_INTERVAL_1): string
     {
         $order_details = array();
@@ -161,13 +83,13 @@ class Model_membership extends MY_Model
 
         $return_html = '';
 
-    if (isset($membership) && count($membership) > 0) {
+        if (isset($membership) && count($membership) > 0) {
 
             foreach ($membership as $value) {
 
                 if (isset($value['membership_id'])) {
 
-                    if($this->userid) {
+                    if ($this->userid) {
                         $order_details = $this->model_order->find_one_active(
                             array(
                                 'where' => array(
@@ -202,7 +124,7 @@ class Model_membership extends MY_Model
                             break;
                     }
 
-                    if($setActive) {
+                    if ($setActive) {
                         $return_html .= '<div class="col-5 offset-5">OR</div>';
                         $return_html .= '<div class="row">';
                         $return_html .= '<div class="col-3"></div>';

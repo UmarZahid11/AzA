@@ -54,13 +54,6 @@
             switch ($order['order_reference_type']) {
                 case ORDER_REFERENCE_MEMBERSHIP:
                     $item_detail = $this->model_membership->find_by_pk($value['order_item_product_id']);
-                    if ($item_detail) {
-                        $param = array();
-                        $param['where']['membership_pivot_attribute_id'] = COST_ATTRIBUTE;
-                        $param['where']['membership_pivot_membership_id'] = $item_detail['membership_id'];
-                        $membership_pivot = $this->model_membership_pivot->find_one($param);
-                        $cost = (!empty($membership_pivot) && intval($membership_pivot['membership_pivot_value'])) ? $membership_pivot['membership_pivot_value'] : 0;
-                    }
                     echo '<td>';
                     echo isset($item_detail['membership_title']) ? $item_detail['membership_title'] : '';
                     echo '</td>';
