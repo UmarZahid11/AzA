@@ -704,7 +704,7 @@ class Meeting extends MY_Controller
                                     }
                                 } else {
                                     $json_param['status'] = STATUS_FALSE;
-                                    $json_param['txt'] = (isset($decoded_response->message) && null !== $decoded_response->message) ? ERROR_MESSAGE_ZOOM_UNAVAILABLE : __(ERROR_MESSAGE);
+                                    $json_param['txt'] = (isset($decoded_response->message) && null !== $decoded_response->message) ? $decoded_response->message : __(ERROR_MESSAGE_ZOOM_UNAVAILABLE);
                                     $json_param['refresh'] = STATUS_TRUE;
                                 }
                             } else {

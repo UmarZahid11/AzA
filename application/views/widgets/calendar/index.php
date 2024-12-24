@@ -301,7 +301,9 @@
                     console.log(e)
                 }
             }
-        )
+        ).catch((e) => {
+            $('#calendar').html('<p class="text-center text-danger">Calendar is currently unavailable!</p><hr />');
+        });
 
         $('body').on('submit', '.slotAvailabilityForm', function() {
             if (!$(this)[0].checkValidity()) {

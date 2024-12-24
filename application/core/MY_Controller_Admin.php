@@ -178,7 +178,7 @@ class MY_Controller_Admin extends CI_Controller
 			$this->session->set_userdata('csrf_token', JWT::encode(CI_ENCRYPTION_PUBLIC));
 
 			// log_message('error', '_token: ' . $this->session->userdata('csrf_token'));
-			log_message('error', 'refreshing csrf ' . $this->session->userdata['csrf_token']);
+			// log_message('error', 'refreshing csrf ' . $this->session->userdata['csrf_token']);
 		}
 		return $this->session->userdata('csrf_token');
 	}

@@ -260,7 +260,7 @@ class Membership extends MY_Controller
                 if($previous_subscription_detail && isset($previous_subscription_detail->plan) && $previous_subscription_detail->plan->active == 1) {
                     if($data['free_membership']) {
                         // cancel previous subscription if active
-                        // $this->stripe->subscriptions->cancel($this->user_data['signup_subscription_id'], []);
+                        $this->stripe->subscriptions->cancel($this->user_data['signup_subscription_id'], []);
                         $data['membership_cancelled'] = TRUE;
                     } else {
                         if(isset($previous_subscription_detail->items) && $previous_subscription_detail->items->data[0]->id) {

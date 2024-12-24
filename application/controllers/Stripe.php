@@ -140,8 +140,8 @@ class Stripe extends MY_Controller
                                         $this->model_signup->update_by_pk(
                                             $reference['signup_id'],
                                             array(
-                                                'signup_membership_id' => ROLE_3,
-                                                'signup_type' => ROLE_3,
+                                                // 'signup_membership_id' => ROLE_3,
+                                                // 'signup_type' => ROLE_3,
                                                 'signup_membership_status' => SUBSCRIPTION_ACTIVE,
                                                 'signup_subscription_status' => SUBSCRIPTION_ACTIVE,
                                             )
@@ -225,8 +225,8 @@ class Stripe extends MY_Controller
                                         $this->model_signup->update_by_pk(
                                             $reference['signup_id'],
                                             array(
-                                                'signup_membership_id' => ROLE_3,
-                                                'signup_type' => ROLE_3,
+                                                // 'signup_membership_id' => ROLE_3,
+                                                // 'signup_type' => ROLE_3,
                                                 'signup_membership_status' => SUBSCRIPTION_ACTIVE,
                                                 'signup_subscription_status' => SUBSCRIPTION_ACTIVE,
                                             )
