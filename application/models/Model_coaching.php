@@ -21,7 +21,7 @@ class Model_coaching extends MY_Model
      */
     function __construct()
     {
-        $this->pagination_params['fields'] = "coaching_id, coaching_title, coaching_start_time, coaching_duration, coaching_status";
+        $this->pagination_params['fields'] = "coaching_id, coaching_title, coaching_start_time, coaching_duration, coaching_current_status, coaching_status";
         parent::__construct();
     }
 
@@ -65,6 +65,141 @@ class Model_coaching extends MY_Model
             'rules' => 'trim'
         );
 
+        //
+        $fields['coaching_uuid'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_uuid',
+            'label' => 'UUID',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_fetchid'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_fetchid',
+            'label' => 'Fetch Id',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+
+        $fields['coaching_host_id'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_host_id',
+            'label' => 'Host Id',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_host_email'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_host_email',
+            'label' => 'Host Email',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_contact_email'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_contact_email',
+            'label' => 'Contact Email',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_contact_name'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_contact_name',
+            'label' => 'Contact Name',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_start_url'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_start_url',
+            'label' => 'Start URL',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_join_url'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_join_url',
+            'label' => 'Join URL',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+
+        $fields['coaching_timezone'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_timezone',
+            'label' => 'Timezone',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+
+        $fields['coaching_response'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_response',
+            'label' => 'Response',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        $fields['coaching_response2'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_response2',
+            'label' => 'Response 2',
+            'type' => 'hidden',
+            'type_dt' => 'text',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "5%"),
+            'js_rules' => '',
+            'rules' => 'trim'
+        );
+        
+        //
+        
         $fields['coaching_title'] = array(
             'table' => $this->_table,
             'name' => 'coaching_title',
@@ -117,6 +252,16 @@ class Model_coaching extends MY_Model
             'attributes'   => array(),
             'js_rules' => 'required',
             'rules' => 'required|trim|htmlentities'
+        );
+
+        $fields['coaching_password'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_password',
+            'label' => 'Password',
+            'type' => 'text',
+            'attributes'   => array(),
+            'js_rules' => '',
+            'rules' => 'trim'
         );
 
         $fields['coaching_short_description'] = array(

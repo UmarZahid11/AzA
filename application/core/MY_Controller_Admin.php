@@ -443,8 +443,8 @@ class MY_Controller_Admin extends CI_Controller
 					$order_field = "";
 					$toggle_button = "";
 					$view_button = "";
+					$view_webinar_button = "";
 					$lifetime_subscription_button = "";
-					
 
 					// Delete button
 					if ((isset($dt_params['action']['show_delete'])) && ($dt_params['action']['show_delete']))
@@ -467,6 +467,10 @@ class MY_Controller_Admin extends CI_Controller
 					// View Button
 					if ((isset($dt_params['action']['show_view'])) && ($dt_params['action']['show_view']))
 						$view_button = '<button title="View" data-href="' . $config['admin_base_url'] . $class . '/ajax_view/' . $itemId . '/" class="btn-sm btn btn_view_product btn-primary" data-pk="' . $itemId . '"><i class="icon-picture"></i></button>';
+
+					// View webinar Button
+					if ((isset($dt_params['action']['view_webinar_button'])) && ($dt_params['action']['view_webinar_button']))
+						$view_webinar_button = '<a target="_blank" href="' . $config['base_url'] . 'dashboard/coaching/detail/' . JWT::encode($itemId) . '/" class="btn-sm btn btn-primary" data-pk="' . $itemId . '"><i class="icon-picture"></i></button>';
 
 					// Approve Button
 					if ((isset($dt_params['action']['approve_button'])) && ($dt_params['action']['approve_button'])) {
@@ -527,7 +531,7 @@ class MY_Controller_Admin extends CI_Controller
 					}
 
 					if (!$dt_params['action']['hide'])
-						$dt_row[$row_key][$field_key] = $extend_trial_button . $lifetime_subscription_button . $toggle_button . $view_button . $edit_button . $delete_button . $extra_buttons . $order_field;
+						$dt_row[$row_key][$field_key] = $extend_trial_button . $lifetime_subscription_button . $toggle_button . $view_button . $view_webinar_button . $edit_button . $delete_button . $extra_buttons . $order_field;
 				}
 			}
 		}

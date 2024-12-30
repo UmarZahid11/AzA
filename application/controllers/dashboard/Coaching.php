@@ -205,9 +205,9 @@ class Coaching extends MY_Controller
                             try {
 
                                 // on update
-                                if ($userApplication['coaching_application_charge_id']) {
+                                if ($userApplication['coaching_application_transaction_id']) {
 
-                                    $charge_detail = $this->resource('charge', $userApplication['coaching_application_charge_id']);
+                                    $transaction_detail = $this->resource('charge', $userApplication['coaching_application_transaction_id']);
 
                                     $affected_application = $this->model_coaching_application->update_by_pk(
                                         $userApplication['coaching_application_id'],
