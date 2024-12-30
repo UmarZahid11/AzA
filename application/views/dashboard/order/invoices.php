@@ -105,6 +105,76 @@
                         <td>No data available.</td>
                     </tr>
                 <?php endif; ?>
+            <?php elseif($type == INVOICE_COACHING) : ?>
+                <?php if (isset($invoices) && $invoices): ?>
+                    <?php foreach($invoices as $key => $invoice): ?>
+                        <?php
+                            $decoded_response = '';
+                            $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
+                            $payment_intent = $stripe->paymentIntents->retrieve($invoice['order_stripe_transaction_id']);
+                            if($payment_intent && $payment_intent->charges) {
+                                $decoded_response = $payment_intent->charges->data[0];
+                            }
+                            $amount = 0;
+                            $status = 'Failed';
+                            $created = '';
+                            $receipt_url = '';
+                        ?>
+                        <tr>
+                            <?php if($this->model_signup->hasRole(ROLE_0)): ?>
+                                <td><?= $invoice['order_id'] ?></td>
+                            <?php endif; ?>
+                            <td><?= str_replace('%0', $invoice['order_id'], ORDER_NO_MASK) ?></td>
+
+                            <?php if($decoded_response && $decoded_response->amount) : ?>
+                                <?php $amount = $decoded_response->amount; ?>
+                            <?php elseif($decoded_response && isset($decoded_response->plan->amount)) : ?>
+                                <?php $amount = $decoded_response->plan->amount; ?>
+                            <?php endif; ?>
+
+                            <td><?= is_int($amount) && $amount > 0 ? price($amount / 100) : price($amount) ?></td>
+
+                            <?php if($decoded_response && ($decoded_response->status)) : ?>
+                                <?php $status = $decoded_response->status; ?>
+                            <?php endif; ?>
+                            <td><?= ucfirst($status) ?></td>
+
+                            <?php if($decoded_response && ($decoded_response->created)) : ?>
+                                <?php $created = $decoded_response->created; ?>
+                            <?php endif; ?>
+                            <td><?= $created ? date('d M, Y h:i a', ($created)) : 'Not available.' ?></td>
+
+                            <?php if($decoded_response && ($decoded_response->receipt_url)) : ?>
+                                <?php $receipt_url = $decoded_response->receipt_url; ?>
+                            <?php else: ?>
+                                <?php if(($decoded_response && ($decoded_response->latest_invoice))) : ?>
+                                    <?php 
+                                        try {
+                                            $invoice = $stripe->invoices->retrieve(
+                                                $decoded_response->latest_invoice,
+                                                []
+                                            );
+                                            if($invoice && isset($invoice->hosted_invoice_url)) {
+                                                $receipt_url = $invoice->hosted_invoice_url;
+                                            }
+                                        } catch(\Exception $e) { log_message('ERROR', $e->getMessage()); }
+                                    ?>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <td>
+                                <?php if($receipt_url): ?>
+                                    <a href="<?= $receipt_url ?>" target="_blank" data-toggle="tooltip" data-bs-placement="top" title="View receipt"><i class="fa fa-file-pdf-o"></i></a>
+                                <?php else: ?>
+                                    The receipt is not available.
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td>No data available.</td>
+                    </tr>
+                <?php endif; ?>
             <?php endif; ?>
         </tbody>
     </table>

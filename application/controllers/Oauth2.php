@@ -291,6 +291,9 @@ class Oauth2 extends MY_Controller
         if (isset($decoded_json->event) && $decoded_json->event != 'endpoint.url_validation') {
 
             //
+            $where_coaching = array();
+            $update_coaching = array();
+            //
             $where_meeting = array();
             $update_meeting = array();
             //
@@ -301,15 +304,17 @@ class Oauth2 extends MY_Controller
             $update_webinar = array();
 
             //
+            $where_coaching['where']['coaching_fetchid'] =
+            $where_meeting['where']['meeting_fetchid'] =
+            $where_availability['where']['signup_availability_meeting_fetchid'] =
             $where_webinar['where']['webinar_fetchid'] =
-                $where_availability['where']['signup_availability_meeting_fetchid'] =
-                $where_meeting['where']['meeting_fetchid'] =
                 isset($decoded_json->payload->object->id) ? $decoded_json->payload->object->id : 0;
 
             //
+            $update_coaching['coaching_response2'] =
+            $update_meeting['meeting_response2'] =
+            $update_availability['signup_availability_meeting_response2'] =
             $update_webinar['webinar_response2'] =
-                $update_availability['signup_availability_meeting_response2'] =
-                $update_meeting['meeting_response2'] =
                 $zoomData;
 
             //
@@ -326,10 +331,12 @@ class Oauth2 extends MY_Controller
             switch ($decoded_json->event) {
                     //
                 case 'meeting.started':
+                    $update_coaching['coaching_current_status'] = COACHING_STARTED;
                     $update_meeting['meeting_current_status'] = ZOOM_MEETING_STARTED;
                     $update_availability['signup_availability_meeting_current_status'] = ZOOM_MEETING_STARTED;
                     break;
                 case 'meeting.ended':
+                    $update_coaching['coaching_current_status'] = COACHING_ENDED;
                     $update_meeting['meeting_current_status'] = ZOOM_MEETING_ENDED;
                     $update_availability['signup_availability_meeting_current_status'] = ZOOM_MEETING_ENDED;
                     break;
@@ -344,7 +351,9 @@ class Oauth2 extends MY_Controller
             //
             $updated = '';
             //
-            if (!empty($this->model_meeting->find_one_active($where_meeting))) {
+            if (!empty($this->model_coaching->find_one_active($where_coaching))) {
+                $updated = $this->model_coaching->update_model($where_coaching, $update_coaching);
+            } elseif (!empty($this->model_meeting->find_one_active($where_meeting))) {
                 $updated = $this->model_meeting->update_model($where_meeting, $update_meeting);
             } elseif (!empty($this->model_signup_availability->find_one_active($where_availability))) {
                 $updated = $this->model_signup_availability->update_model($where_availability, $update_availability);

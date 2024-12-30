@@ -608,6 +608,34 @@ class Order extends MY_Controller
                     );
                     $data['totalPages'] = ceil($allRecrods / $limit);
                     break;
+                case INVOICE_COACHING:
+                    $data['page'] = $page = $page ? $page : 1;
+                    $data['limit'] = $limit = PER_PAGE;
+                    $data['offset'] = $paginationStart = ($page > 0) ? ($page - 1) * $limit : 0;
+                    $data['prev'] = $page - 1;
+                    $data['next'] = $page + 1;
+
+                    $data['invoices'] = $this->model_order->find_all_active(
+                        array(
+                            'order' => 'order_id desc',
+                            'offset' => $data['offset'],
+                            'limit' => $limit,
+                            'where' => array(
+                                'order_user_id' => $this->userid,
+                                'order_reference_type' => ORDER_REFERENCE_COACHING
+                            ),
+                        )
+                    );
+                    $data['invoices_count'] = $allRecrods = $this->model_order->find_count_active(
+                        array(
+                            'where' => array(
+                                'order_user_id' => $this->userid,
+                                'order_reference_type' => ORDER_REFERENCE_COACHING
+                            ),
+                        )
+                    );
+                    $data['totalPages'] = ceil($allRecrods / $limit);
+                    break;
             }
 
             //

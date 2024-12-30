@@ -37,6 +37,9 @@
                     case ORDER_REFERENCE_TECHNOLOGY_LISTING:
                         echo 'Technology listing subscription status';
                         break;
+                    case ORDER_REFERENCE_COACHING:
+                        echo 'Coaching application status';
+                        break;
                 }
                 ?>
             </th>
@@ -143,7 +146,23 @@
                     echo ' - ' . (isset($item_detail['product_subscription_current_period_end']) && $item_detail['product_subscription_current_period_end'] ? date('d M, Y H:i a', strtotime($item_detail['product_subscription_current_period_end'])) : '');
                     echo '</td>';
                     break;
-            }
+                case ORDER_REFERENCE_COACHING:
+                    $item_detail_reference = '';
+                    $item_detail = $this->model_coaching_application->find_by_pk($value['order_item_product_id']);
+                    if($item_detail) {
+                        $item_detail_reference = $this->model_coaching->find_by_pk($item_detail['coaching_application_coaching_id']);
+                    }
+                    echo '<td>';
+                    echo isset($item_detail_reference['coaching_title']) ? $item_detail_reference['coaching_title'] : '';
+                    echo '</td>';
+                    echo '<td>';
+                    echo price($value['order_item_price']);
+                    echo '</td>';
+                    echo '<td>';
+                    echo isset($order['order_payment_status']) ? ucfirst($this->model_membership->subscriptionStatusString($order['order_payment_status'])) : NA;
+                    echo '</td>';
+                    break;
+                }
             echo '</tr>';
         ?>
         <?php endforeach; ?>

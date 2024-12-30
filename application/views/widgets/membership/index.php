@@ -20,6 +20,9 @@
             <div class="col-md-7">
                 <div class="row">
                     <?php if(isset($membershipData)) : ?>
+                        <?php if(count($membershipData) < 4): ?>
+                            <div class="col-md-3"></div>
+                        <?php endif; ?>
                         <?php foreach($membershipData as $membershipKey => $data) : ?>
                             <div class="col-md-3">
                                 <div class="privcestrp <?= $this->model_membership->isCurrentMembership($membershipKey) ? 'selected' : '' ?> <?php

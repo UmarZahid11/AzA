@@ -12,10 +12,11 @@ $menu_links = array(
     array(
         "title" => "Coaching Management",
         "icon" => ' fa fa-graduation-cap',
-        "action" => array("coaching", "coaching_cost"),
+        "action" => array("coaching", "coaching_cost", "coaching_application"),
         "additionals" => array(
             array("link" => "coaching", "title" => "All coachings", "icon" => " fa fa-comments"),
             array("link" => "coaching_cost", "title" => "Cost management", "icon" => " fa fa-comments"),
+            array("link" => "coaching_application", "title" => "Application management", "icon" => " fa fa-comments"),
         ),
     ),
     array(

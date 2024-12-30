@@ -4,9 +4,9 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
 /**
- * Coaching
+ * Coaching_application
  */
-class Coaching extends MY_Controller
+class Coaching_application extends MY_Controller
 {
     /**
      * _list_data
@@ -25,8 +25,8 @@ class Coaching extends MY_Controller
         global $config;
         parent::__construct();
 
-        $this->dt_params['dt_headings'] = "coaching_id, coaching_title, coaching_start_time, coaching_duration, coaching_status";
-        $this->dt_params['searchable'] = array("coaching_id", "coaching_title", "coaching_status");
+        $this->dt_params['dt_headings'] = "coaching_application_id, coaching_application_signup_id, coaching_application_coaching_id, coaching_application_status";
+        $this->dt_params['searchable'] = array("coaching_application_id", "coaching_application_signup_id", "coaching_application_coaching_id", "coaching_application_status");
         $this->dt_params['action'] = array(
             "hide_add_button" => false,
             "hide" => false,
@@ -43,22 +43,10 @@ class Coaching extends MY_Controller
             STATUS_INACTIVE => "<span class=\"label label-danger\">Inactive</span>",
             STATUS_ACTIVE =>  "<span class=\"label label-primary\">Active</span>"
         );
+
+        $this->_list_data['coaching_application_signup_id'] = $this->model_signup->find_all_list_active(array(), 'signup_email');
+        $this->_list_data['coaching_application_coaching_id'] = $this->model_coaching->find_all_list_active(array(), 'coaching_title');
+
         $config['js_config']['paginate'] = $this->dt_params['paginate'];
     }
-
-    /**
-	 * Method afterSave
-	 *
-	 * @param int $insertId
-	 * @param object $model
-	 *
-	 * @return void
-	 */
-	public function afterSave($insertId, $model)
-	{
-        $model->find_by_pk($insertId);
-        if(!$model['coaching_uuid']) {
-            // create webinar here
-        }
-	}
 }

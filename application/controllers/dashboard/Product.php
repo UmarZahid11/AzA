@@ -1094,6 +1094,7 @@ class Product extends MY_Controller
      */
     function saveRequest(): void
     {
+        global $config;
         $json_param = array();
         $json_param['status'] = STATUS_FALSE;
         $json_param['message'] = ERROR_MESSAGE;

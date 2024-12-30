@@ -43,6 +43,13 @@ if (!$userdata) {
             <span><?= __('AzAverze Tutorials') ?></span>
         </a>
 
+        <a 
+            href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? l('dashboard/coaching') : 'javascript:;'; ?>"
+        >
+            <i class="customFaIcon fa fa-desktop"></i>
+            <span><?= __('Coachings') ?></span>
+        </a>
+
         <?php if($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) : ?>
             <a 
                 class="quickbk <?= !$this->model_quickbook_account->accountExists($this->userid) ? 'quickbkRequest' : '' ?>"
@@ -170,6 +177,11 @@ if (!$userdata) {
                     <li>
                         <a href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission()) ? l('dashboard/order/invoices/' . INVOICE_SERVICE_PROVIDED) : 'javascript:;'); ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->model_signup->hasPremiumPermission()) ? "" : ERROR_MESSAGE_SUBSCRIPTION; ?>">
                             <span class="title" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->model_signup->hasPremiumPermission()) ? "" : ERROR_MESSAGE_SUBSCRIPTION; ?>"> Invoices For Services Provided  </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission()) ? l('dashboard/order/invoices/' . INVOICE_COACHING) : 'javascript:;'); ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->model_signup->hasPremiumPermission()) ? "" : ERROR_MESSAGE_SUBSCRIPTION; ?>">
+                            <span class="title" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->model_signup->hasPremiumPermission()) ? "" : ERROR_MESSAGE_SUBSCRIPTION; ?>"> Coaching Invoices  </span>
                         </a>
                     </li>
                     <?php if($this->model_signup->hasRole(ROLE_0)): ?>

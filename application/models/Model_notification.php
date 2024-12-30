@@ -168,6 +168,10 @@ class Model_notification extends MY_Model
             case NOTIFICATION_NEW_PROMOTION:
                 $url = l('dashboard/profile/promotions');
                 break;
+            case NOTIFICATION_COACHING_REQUEST_SENT:
+            case NOTIFICATION_COACHING_REQUEST_COMPLETED:
+                $url = l('dashboard/coaching/detail/') . JWT::encode($notification_detail['notification_reference_id']);
+                break;
         }
         return $url;
     }

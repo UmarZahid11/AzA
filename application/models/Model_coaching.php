@@ -21,7 +21,7 @@ class Model_coaching extends MY_Model
      */
     function __construct()
     {
-        $this->pagination_params['fields'] = "coaching_id, coaching_title, coaching_start_time, coaching_status";
+        $this->pagination_params['fields'] = "coaching_id, coaching_title, coaching_start_time, coaching_duration, coaching_status";
         parent::__construct();
     }
 
@@ -53,9 +53,6 @@ class Model_coaching extends MY_Model
     */
     public function get_fields($specific_field = "")
     {
-        // Use when add new image
-        // $is_required = (($this->uri->segment(4) != null) && intval($this->uri->segment(4))) ? '' : 'required';
-
         $fields['coaching_id'] = array(
             'table' => $this->_table,
             'name' => 'coaching_id',
@@ -101,7 +98,6 @@ class Model_coaching extends MY_Model
             'rules' => 'required|trim|htmlentities'
         );
 
-
         $fields['coaching_start_time'] = array(
             'table' => $this->_table,
             'name' => 'coaching_start_time',
@@ -111,7 +107,18 @@ class Model_coaching extends MY_Model
             'js_rules' => 'required',
             'rules' => 'trim|htmlentities|required'
         );
-        
+
+        $fields['coaching_duration'] = array(
+            'table' => $this->_table,
+            'name' => 'coaching_duration',
+            'label' => 'Duration (minutes)',
+            'type' => 'number',
+            'min' => 10,
+            'attributes'   => array(),
+            'js_rules' => 'required',
+            'rules' => 'required|trim|htmlentities'
+        );
+
         $fields['coaching_short_description'] = array(
             'table' => $this->_table,
             'name' => 'coaching_short_description',
@@ -132,24 +139,43 @@ class Model_coaching extends MY_Model
             'rules' => 'trim|htmlentities'
         );
 
-        $fields['coaching_image'] = array(
+        // $fields['coaching_image'] = array(
+        //     'table' => $this->_table,
+        //     'name' => 'coaching_image',
+        //     'label' => 'Image',
+        //     'name_path' => 'coaching_image_path',
+        //     'upload_config' => 'site_upload_coaching',
+        //     'type' => 'fileupload',
+        //     'type_dt' => 'image',
+        //     'randomize' => true,
+        //     'preview' => 'true',
+        //     'attributes' => array(
+        //         'image_size_recommended' => '1803px × 1046px',
+        //         'allow_ext' => 'png|jpeg|jpg|webp|gif',
+        //     ),
+        //     'thumb'   => array(),
+        //     'dt_attributes' => array("width" => "10%"),
+        //     'rules' => '',
+        //     'js_rules' => ''
+        // );
+
+        $fields['coaching_current_status'] = array(
             'table' => $this->_table,
-            'name' => 'coaching_image',
-            'label' => 'Image',
-            'name_path' => 'coaching_image_path',
-            'upload_config' => 'site_upload_coaching',
-            'type' => 'fileupload',
-            'type_dt' => 'image',
-            'randomize' => true,
-            'preview' => 'true',
-            'attributes' => array(
-                'image_size_recommended' => '1803px × 1046px',
-                'allow_ext' => 'png|jpeg|jpg|webp|gif',
+            'name' => 'coaching_current_status',
+            'label' => 'Meeting state',
+            'type' => 'dropdown',
+            'type_dt' => 'dropdown',
+            'type_filter_dt' => 'dropdown',
+            'list_data_key' => "news_status",
+            'list_data' => array(
+                0 => "<span class='label label-danger'>Pending</span>",
+                1 =>  "<span class='label label-primary'>Started</span>",
+                2 =>  "<span class='label label-primary'>Ended</span>",
             ),
-            'thumb'   => array(),
-            'dt_attributes' => array("width" => "10%"),
-            'rules' => '',
-            'js_rules' => ''
+            'default' => '0',
+            'attributes' => array(),
+            'dt_attributes' => array("width" => "7%"),
+            'rules' => 'trim'
         );
 
         $fields['coaching_status'] = array(
@@ -159,7 +185,7 @@ class Model_coaching extends MY_Model
             'type' => 'switch',
             'type_dt' => 'switch',
             'type_filter_dt' => 'dropdown',
-            'list_data_key' => "news_status",
+            'list_data_key' => "coaching_status",
             'list_data' => array(
                 0 => "<span class='label label-danger'>Inactive</span>",
                 1 =>  "<span class='label label-primary'>Active</span>"
