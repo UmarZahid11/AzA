@@ -163,6 +163,8 @@ class Coaching extends MY_Controller
                     $data['coaching_response'] = json_decode($coaching_response);
                 }
             }
+            
+            $data['paypalAccessToken'] = $this->paypalAccessToken;
 
             //
             $this->layout_data['title'] = 'Coaching details | ' . $this->layout_data['title'];

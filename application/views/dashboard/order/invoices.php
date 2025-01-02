@@ -121,6 +121,29 @@
                                     $decoded_response = $payment_intent->charges->data[0];
                                 }
                             }
+                            if($invoice['order_merchant'] == PAYPAL) {
+                  
+                                $url = PAYPAL_URL . PAYPAL_CHECKOUT_URL . '/' . $invoice['order_session_checkout_id'];
+                                $headers = array();
+                                $headers[] = 'Content-Type: application/json';
+                                $headers[] = 'Authorization: Bearer ' . $paypalAccessToken;
+           
+                                $ch = curl_init();
+                                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                                curl_setopt($ch, CURLOPT_URL, $url);
+                                curl_setopt($ch, CURLOPT_TIMEOUT, 80);
+                                curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                $response = curl_exec($ch);
+                                $err = curl_error($ch);
+                                curl_close($ch);
+
+                                $decoded_response = json_decode($response);
+                                // debug($decoded_response, 1);
+                            }
                         ?>
                         <tr>
                             <?php if($this->model_signup->hasRole(ROLE_0)): ?>
@@ -128,7 +151,7 @@
                             <?php endif; ?>
                             <td><?= str_replace('%0', $invoice['order_id'], ORDER_NO_MASK) ?></td>
 
-                            <?php if($decoded_response && $decoded_response->amount) : ?>
+                            <?php if($decoded_response && isset($decoded_response->amount)) : ?>
                                 <?php $amount = $decoded_response->amount; ?>
                             <?php elseif($decoded_response && isset($decoded_response->plan->amount)) : ?>
                                 <?php $amount = $decoded_response->plan->amount; ?>
@@ -141,15 +164,17 @@
                             <?php endif; ?>
                             <td><?= ucfirst($status) ?></td>
 
-                            <?php if($decoded_response && ($decoded_response->created)) : ?>
+                            <?php if($decoded_response && isset($decoded_response->created)) : ?>
                                 <?php $created = $decoded_response->created; ?>
+                            <?php elseif($decoded_response && isset($decoded_response->create_time)) : ?>
+                                <?php $created = strtotime($decoded_response->create_time); ?>
                             <?php endif; ?>
                             <td><?= $created ? date('d M, Y h:i a', ($created)) : 'Not available.' ?></td>
 
-                            <?php if($decoded_response && ($decoded_response->receipt_url)) : ?>
+                            <?php if($decoded_response && isset($decoded_response->receipt_url)) : ?>
                                 <?php $receipt_url = $decoded_response->receipt_url; ?>
                             <?php else: ?>
-                                <?php if(($decoded_response && ($decoded_response->latest_invoice))) : ?>
+                                <?php if(($decoded_response && isset($decoded_response->latest_invoice))) : ?>
                                     <?php 
                                         try {
                                             $invoice = $stripe->invoices->retrieve(

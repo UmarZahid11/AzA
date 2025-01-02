@@ -217,12 +217,32 @@
                         </p>
                         <?php if ($user_application['coaching_application_payment_status'] == 0) : ?>
                             <?php
-                            $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
-                            $session_url = '';
-                            $session = $stripe->checkout->sessions->retrieve($user_application['coaching_application_checkout_session_id']);
-                            if ($session) {
-                                $session_url = $session->url;
-                            }
+                                $session_url = '';
+                                switch($user_application['coaching_application_merchant']) {
+                                    case STRIPE:
+                                        $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
+                                        $session = $stripe->checkout->sessions->retrieve($user_application['coaching_application_checkout_session_id']);
+                                        if ($session) {
+                                            $session_url = $session->url;
+                                        }
+                                        break;
+                                    case PAYPAL:
+                                        $url = PAYPAL_URL . PAYPAL_CHECKOUT_URL . '/' . $user_application['coaching_application_checkout_session_id'];
+                                        $headers = array();
+                                        $headers[] = 'Content-Type: application/json';
+                                        $headers[] = 'Authorization: Bearer ' . $paypalAccessToken;
+                    
+                                        $response = curlRequest($url, $headers);
+                                        $session = json_decode($response);
+                                        if($session->status == 'PAYER_ACTION_REQUIRED') {
+                                            foreach($session->links as $link) {
+                                                if($link->rel == 'payer-action') {
+                                                    $session_url = $link->href;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                }
                             ?>
                             <?php if ($session_url) : ?>
                                 <a href="<?= $session_url ?>" class="btn btn-custom">Complete Payment</a>

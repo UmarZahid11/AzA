@@ -621,7 +621,7 @@ class Profile extends MY_Controller
                     //
                     $query = 'SELECT * FROM `fb_order`';
                     $query .= ' where order_user_id = ' . $signup['signup_id'];
-                    $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
+                    $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '")';
                     //
                     $order = ($this->db->query($query)->row_array());
     
@@ -1398,7 +1398,8 @@ class Profile extends MY_Controller
                 //
                 $query = 'SELECT * FROM `fb_order`';
                 $query .= ' where order_user_id = ' . $this->userid;
-                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
+                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '")';
+
                 //
                 $order = ($this->db->query($query)->row_array());
 
@@ -1591,7 +1592,8 @@ class Profile extends MY_Controller
                 //
                 $query = 'SELECT * FROM `fb_order`';
                 $query .= ' where order_user_id = ' . $this->userid;
-                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
+                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '")';
+
                 //
                 $order = ($this->db->query($query)->row_array());
 
@@ -1706,32 +1708,17 @@ class Profile extends MY_Controller
             $updated = TRUE;
         }
 
-        switch ($merchant) {
-            case STRIPE:
-                $this->model_order->update_model(
-                    array(
-                        'where' => array(
-                            'order_transaction_id' => $this->user_data['signup_subscription_id']
-                        )
-                    ),
-                    array(
-                        'order_payment_status' => PAYMENT_STATUS_CANCELLED
-                    )
-                );
-                break;
-            case PAYPAL:
-                $this->model_order->update_model(
-                    array(
-                        'where' => array(
-                            'order_session_subscription_id' => $this->user_data['signup_subscription_id']
-                        )
-                    ),
-                    array(
-                        'order_payment_status' => PAYMENT_STATUS_CANCELLED
-                    )
-                );
-                break;
-        }
+        $this->model_order->update_model(
+            array(
+                'where' => array(
+                    'order_transaction_id' => $this->user_data['signup_subscription_id']
+                )
+            ),
+            array(
+                'order_payment_status' => PAYMENT_STATUS_CANCELLED
+            )
+        );
+
         return $updated;
     }
 

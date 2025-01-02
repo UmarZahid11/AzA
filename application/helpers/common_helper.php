@@ -1058,3 +1058,49 @@ if (!function_exists('cleanString')) {
         return $cleaned;
     }
 }
+
+if (!function_exists('curlRequest')) {
+	function curlRequest(string $url, array $headers, array $post_fields = array(), bool $is_post = FALSE, bool $is_custom_request = FALSE, string $custom_request_type = '', $build_post_query = FALSE, $user_pwd = ''): ?string
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 80);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        if ($user_pwd) {
+            curl_setopt($ch, CURLOPT_USERPWD, $user_pwd);
+        }
+        if ($is_custom_request) {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $custom_request_type);
+        }
+        if (!empty($post_fields)) {
+            if ($build_post_query) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
+            } else {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+            }
+        }
+        if ($is_post) {
+            curl_setopt($ch, CURLOPT_POST, $is_post);
+        }
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+
+        //
+        log_message('error', 'URL: ' . $url . ' - last_http_status: ' . curl_getinfo($ch, CURLINFO_HTTP_CODE));
+
+        curl_close($ch);
+
+        if ($err) {
+            log_message('error', "cURL Error #:" . $err);
+            return NULL;
+        } else {
+            return $response;
+        }
+    }
+}

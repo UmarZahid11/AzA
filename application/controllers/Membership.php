@@ -371,7 +371,7 @@ class Membership extends MY_Controller
                 case PAYPAL:
                     if($merchant_session && property_exists($merchant_session, 'id')) {
                         // plan is fetched in merchant_session
-                        $insertParam['order_session_plan_id'] = $merchant_session ? $merchant_session->id : '';
+                        $insertParam['order_session_checkout_id'] = $merchant_session ? $merchant_session->id : '';
                         // response in raw json format
                         $insertParam['order_response'] = serialize($merchant_session);
                     } else {
@@ -497,13 +497,6 @@ class Membership extends MY_Controller
 
         if (!$checkoutSessionId)
             error_404();
-
-        // $query = 'SELECT * FROM `fb_order`';
-        // $query .= ' where order_user_id = ' . $this->userid;
-        // $query .= ' AND (order_session_checkout_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
-        // $order = ($this->db->query($query)->row_array());
-        // if (empty($order))
-        //     error_404();
 
         if($membershipId) {
             try {
@@ -660,12 +653,12 @@ class Membership extends MY_Controller
                             $updatedOrder = $this->model_order->update_model(
                                 array('where' => array(
                                     'order_user_id' => $this->userid,
-                                    'order_session_plan_id' => $subscription->plan_id
+                                    'order_session_checkout_id' => $subscription->plan_id
                                 )),
                                 array(
                                     'order_payment_status' => $this->model_membership->subscriptionStatus($subscription_status),
                                     'order_status' => STATUS_ACTIVE,
-                                    'order_session_subscription_id' => $subscription->id,
+                                    'order_transaction_id' => $subscription->id,
                                     // response in raw json format
                                     // updated response of from plan to session response
                                     'order_response' => serialize($subscription),
