@@ -183,7 +183,7 @@ class Coaching extends MY_Controller
                 $param['where']['coaching_id'] = $affect['coaching_id'];
                 $coaching = $this->model_coaching->find_one($param);
 
-                if (isset($coaching['coaching_fetchid'])) {
+                if (isset($coaching['coaching_fetchid']) && $coaching['coaching_fetchid']) {
                     $update = TRUE;
                 }
             }

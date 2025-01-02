@@ -364,16 +364,16 @@ class Membership extends MY_Controller
 
             switch($merchant) {
                 case STRIPE:
-                    $insertParam['order_stripe_session_checkout_id'] = $merchant_session ? $merchant_session->id : '';
+                    $insertParam['order_session_checkout_id'] = $merchant_session ? $merchant_session->id : '';
                     // response in raw json format
-                    $insertParam['order_stripe_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $merchant_session);
+                    $insertParam['order_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $merchant_session);
                     break;
                 case PAYPAL:
                     if($merchant_session && property_exists($merchant_session, 'id')) {
                         // plan is fetched in merchant_session
-                        $insertParam['order_paypal_session_plan_id'] = $merchant_session ? $merchant_session->id : '';
+                        $insertParam['order_session_plan_id'] = $merchant_session ? $merchant_session->id : '';
                         // response in raw json format
-                        $insertParam['order_paypal_response'] = serialize($merchant_session);
+                        $insertParam['order_response'] = serialize($merchant_session);
                     } else {
                         $paypal_error = TRUE;
                     }
@@ -405,7 +405,7 @@ class Membership extends MY_Controller
             $data['order'] = $this->model_order->find_one_active(
                 array(
                     'where' => array(
-                        'order_stripe_session_checkout_id' => $this->user_data['signup_session_id']
+                        'order_session_checkout_id' => $this->user_data['signup_session_id']
                     ),
                 )
             );
@@ -413,9 +413,9 @@ class Membership extends MY_Controller
             if($data['order']) {
 
                 if($data['membership_cancelled']) {
-                    $affectParam['order_stripe_session_checkout_id'] = '';
-                    $affectParam['order_stripe_transaction_id'] = '';
-                    $affectParam['order_stripe_response'] = '';
+                    $affectParam['order_session_checkout_id'] = '';
+                    $affectParam['order_transaction_id'] = '';
+                    $affectParam['order_response'] = '';
                     // $affectParam['order_payment_status'] = SUBSCRIPTION_CANCELLED;
                 } else {
                     $affectParam['order_payment_status'] = SUBSCRIPTION_ACTIVE;
@@ -500,7 +500,7 @@ class Membership extends MY_Controller
 
         // $query = 'SELECT * FROM `fb_order`';
         // $query .= ' where order_user_id = ' . $this->userid;
-        // $query .= ' AND (order_stripe_session_checkout_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
+        // $query .= ' AND (order_session_checkout_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
         // $order = ($this->db->query($query)->row_array());
         // if (empty($order))
         //     error_404();
@@ -590,15 +590,15 @@ class Membership extends MY_Controller
                             $updatedOrder = $this->model_order->update_model(
                                 array('where' => array(
                                     'order_user_id' => $this->userid,
-                                    'order_stripe_session_checkout_id' => $checkoutSessionId
+                                    'order_session_checkout_id' => $checkoutSessionId
                                 )),
                                 array(
                                     'order_payment_status' => $this->model_membership->subscriptionStatus($subscription->status),
                                     'order_status' => STATUS_ACTIVE,
-                                    'order_stripe_transaction_id' => $subscription->id,
+                                    'order_transaction_id' => $subscription->id,
                                     // response in raw json format
                                     // updated response of stripe session
-                                    'order_stripe_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
+                                    'order_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
                                     'order_status_message' => $this->model_membership->subscriptionStatusString($this->model_membership->subscriptionStatus($subscription->status)),
                                 )
                             );
@@ -660,15 +660,15 @@ class Membership extends MY_Controller
                             $updatedOrder = $this->model_order->update_model(
                                 array('where' => array(
                                     'order_user_id' => $this->userid,
-                                    'order_paypal_session_plan_id' => $subscription->plan_id
+                                    'order_session_plan_id' => $subscription->plan_id
                                 )),
                                 array(
                                     'order_payment_status' => $this->model_membership->subscriptionStatus($subscription_status),
                                     'order_status' => STATUS_ACTIVE,
-                                    'order_paypal_session_subscription_id' => $subscription->id,
+                                    'order_session_subscription_id' => $subscription->id,
                                     // response in raw json format
                                     // updated response of from plan to session response
-                                    'order_paypal_response' => serialize($subscription),
+                                    'order_response' => serialize($subscription),
                                     'order_status_message' => $this->model_membership->subscriptionStatusString($this->model_membership->subscriptionStatus($subscription_status)),
                                 )
                             );
@@ -775,7 +775,7 @@ class Membership extends MY_Controller
             if($merchant == FREE) {
                 $where_array['order_id'] = $checkoutSessionId;
             } else {
-                $where_array['order_stripe_session_checkout_id'] = $checkoutSessionId;
+                $where_array['order_session_checkout_id'] = $checkoutSessionId;
             }
 
             $order_details = $this->model_order->find_one_active(

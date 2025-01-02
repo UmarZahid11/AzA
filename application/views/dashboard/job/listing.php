@@ -109,7 +109,7 @@
                             <button class="delete_job" data-id="<?= $value['job_id'] ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= __('Delete this job?') ?>"><i class="fa-regular fa-xmark"></i></button>
                             <a href="<?= l('dashboard/job/post/') . $value['job_slug'] . '/edit' ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= __('Edit this job') ?>"><i class="fa-regular fa-pen-to-square"></i></a>
                             <?php if($value['job_subscription_id']) : ?>
-                                <?php $order = $this->model_order->find_one(['where' => ['order_stripe_transaction_id' => $value['job_subscription_id'], 'order_user_id' => $this->userid]]); ?>
+                                <?php $order = $this->model_order->find_one(['where' => ['order_transaction_id' => $value['job_subscription_id'], 'order_user_id' => $this->userid]]); ?>
                                 <?php if ($order) : ?>
                                     <a target="_blank" href="<?= l('dashboard/order/detail/') . JWT::encode($order['order_id']); ?>" data-toggle="tooltip" data-bs-placement="left" title="<?= __('View your subscription detail for this job.') ?>"><i class="fa-regular fa-file-invoice"></i></a>
                                 <?php endif; ?>

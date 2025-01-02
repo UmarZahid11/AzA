@@ -56,9 +56,7 @@
                                         <?php endif; ?>
                                     </h3>
                                     <div class="ponyidk">
-                                        <?php foreach($data['data'] as $keyList => $valueList) : 
-                                            //debug($data['data']);
-                                        ?>
+                                        <?php foreach($data['data'] as $keyList => $valueList) : ?>
                                             <?php
                                                 if(($data['membership']['membership_id'] == 3) AND ($keyList == 9)){
                                                     echo "<p style='color:#fff;font-weight:bold'>Coming Soon</p>";

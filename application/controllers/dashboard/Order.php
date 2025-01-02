@@ -932,8 +932,8 @@ class Order extends MY_Controller
                                     $affect_param['order_status'] = STATUS_TRUE;
                                     $affect_param['order_payment_comments'] = 'Completed';
                                     $affect_param['order_merchant'] = 'STRIPE';
-                                    $affect_param['order_stripe_response'] = $charge;
-                                    $affect_param['order_stripe_charge_id'] = $charge_id;
+                                    $affect_param['order_response'] = $charge;
+                                    $affect_param['order_transaction_id'] = $charge_id;
                                     $affected = $this->model_order->update_by_pk($order_id, $affect_param);
 
                                     // mailing
@@ -997,7 +997,7 @@ class Order extends MY_Controller
                                                     "amount" => $value['order_item_payment_due'] * 100,
                                                     "currency" => DEFAULT_CURRENCY_CODE,
                                                     "destination" => $value['signup_account_id'],
-                                                    "source_transaction" => $value['order_stripe_charge_id'],
+                                                    "source_transaction" => $value['order_transaction_id'],
                                                 ]);
 
                                                 $updated = $this->model_order_item->update_by_pk(
@@ -1429,8 +1429,8 @@ class Order extends MY_Controller
                         $affect_param['order_status'] = STATUS_TRUE;
                         $affect_param['order_payment_comments'] = 'Completed';
                         $affect_param['order_merchant'] = PAYPAL;
-                        $affect_param['order_paypal_response'] = serialize($_POST);
-                        $affect_param['order_paypal_order_id'] = $orderId;
+                        $affect_param['order_response'] = serialize($_POST);
+                        $affect_param['order_order_id'] = $orderId;
                         $affected = $this->model_order->update_by_pk($order_id, $affect_param);
 
                         if($affected) {

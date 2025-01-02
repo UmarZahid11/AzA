@@ -234,7 +234,7 @@ class Stripe extends MY_Controller
                                         $this->model_order->update_model(
                                             array(
                                                 'where' => array(
-                                                    'order_stripe_transaction_id' => $reference['signup_subscription_id']
+                                                    'order_transaction_id' => $reference['signup_subscription_id']
                                                 )
                                             ),
                                             array(
@@ -373,7 +373,7 @@ class Stripe extends MY_Controller
                             $this->model_order->update_model(
                                 array(
                                     'where' => array(
-                                        'order_stripe_transaction_id' => $stripe_log['stripe_log_resource_id']
+                                        'order_transaction_id' => $stripe_log['stripe_log_resource_id']
                                     )
                                 ),
                                 array(
@@ -539,7 +539,7 @@ class Stripe extends MY_Controller
                                         $this->model_order->update_model(
                                             array(
                                                 'where' => array(
-                                                    'order_stripe_transaction_id' => $stripe_log['stripe_log_resource_id']
+                                                    'order_transaction_id' => $stripe_log['stripe_log_resource_id']
                                                 )
                                             ),
                                             array(

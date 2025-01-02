@@ -79,9 +79,9 @@ switch ($order['order_reference_type']) {
                         <li><strong>Service fee (<?= $order['order_fee'] > 0 ? number_format(($order['order_fee'] / $order['order_amount']) * 100, 0) : 0 ?>%): </strong> <?= price($order['order_fee']); ?></li>
                         <li><strong>Total amount: </strong><?= $order['order_currency'] . ' ' . price_without_sign($order['order_total']) ?></li>
 
-                        <?php if ($order['order_stripe_charge_id']) : ?>
+                        <?php if ($order['order_transaction_id']) : ?>
                             <li><strong>Stripe charge ID: </strong>
-                                <span style="word-wrap: break-word;"><?= $order['order_stripe_charge_id'] ?? NA; ?></span>
+                                <span style="word-wrap: break-word;"><?= $order['order_transaction_id'] ?? NA; ?></span>
                             </li>
                         <?php endif; ?>
                         <li>
@@ -92,13 +92,13 @@ switch ($order['order_reference_type']) {
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="responseModalLabel"><?= $order['order_stripe_charge_id'] ? 'Charge response' : ($order['order_stripe_session_checkout_id'] ? 'Checkout session response' : 'Response'); ?></h5>
+                                            <h5 class="modal-title" id="responseModalLabel"><?= $order['order_transaction_id'] ? 'Charge response' : ($order['order_session_checkout_id'] ? 'Checkout session response' : 'Response'); ?></h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <?= $order['order_stripe_response'] ? '<pre>' . $order['order_stripe_response'] . '</pre>' : NA ?>
+                                            <?= $order['order_response'] ? '<pre>' . $order['order_response'] . '</pre>' : NA ?>
                                         </div>
                                     </div>
                                 </div>

@@ -654,8 +654,8 @@ class Job extends MY_Controller
                                         $affect_param['order_shipment_price'] = price($affect_param['order_shipping']);
                                         $affect_param['order_merchant'] = STRIPE;
                                         $affect_param['order_currency'] = DEFAULT_CURRENCY_CODE;
-                                        $affect_param['order_stripe_transaction_id'] = $subscription ? $subscription->id : '';
-                                        $affect_param['order_stripe_response'] = str_replace('Stripe\Subscription JSON:', '', (string) $subscription);
+                                        $affect_param['order_transaction_id'] = $subscription ? $subscription->id : '';
+                                        $affect_param['order_response'] = str_replace('Stripe\Subscription JSON:', '', (string) $subscription);
                                         //
                                         $affected_order = $this->model_order->insert_record($affect_param);
 
@@ -945,7 +945,7 @@ class Job extends MY_Controller
             $this->model_order->update_model(
                 array(
                     'where' => array(
-                        'order_stripe_transaction_id' => $reference['job_subscription_id']
+                        'order_transaction_id' => $reference['job_subscription_id']
                     )
                 ),
                 array(

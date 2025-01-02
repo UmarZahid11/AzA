@@ -43,7 +43,7 @@
                 <?php if (isset($invoices) && $invoices): ?>
                     <?php foreach($invoices as $key => $invoice): ?>
                         <?php
-                            $decoded_response = json_decode($invoice['order_stripe_response']);
+                            $decoded_response = json_decode($invoice['order_response']);
                             $amount = 0;
                             $status = 'Failed';
                             $created = '';
@@ -110,15 +110,17 @@
                     <?php foreach($invoices as $key => $invoice): ?>
                         <?php
                             $decoded_response = '';
-                            $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
-                            $payment_intent = $stripe->paymentIntents->retrieve($invoice['order_stripe_transaction_id']);
-                            if($payment_intent && $payment_intent->charges) {
-                                $decoded_response = $payment_intent->charges->data[0];
-                            }
                             $amount = 0;
                             $status = 'Failed';
                             $created = '';
                             $receipt_url = '';
+                            if($invoice['order_merchant'] == STRIPE) {
+                                $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
+                                $payment_intent = $stripe->paymentIntents->retrieve($invoice['order_transaction_id']);
+                                if($payment_intent && $payment_intent->charges) {
+                                    $decoded_response = $payment_intent->charges->data[0];
+                                }
+                            }
                         ?>
                         <tr>
                             <?php if($this->model_signup->hasRole(ROLE_0)): ?>

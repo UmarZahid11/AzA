@@ -908,8 +908,8 @@ class Product extends MY_Controller
                                         $affect_param['order_shipment_price'] = price($affect_param['order_shipping']);
                                         $affect_param['order_merchant'] = STRIPE;
                                         $affect_param['order_currency'] = DEFAULT_CURRENCY_CODE;
-                                        $affect_param['order_stripe_transaction_id'] = $subscription ? $subscription->id : '';
-                                        $affect_param['order_stripe_response'] = str_replace('Stripe\Subscription JSON:', '', (string) $subscription);
+                                        $affect_param['order_transaction_id'] = $subscription ? $subscription->id : '';
+                                        $affect_param['order_response'] = str_replace('Stripe\Subscription JSON:', '', (string) $subscription);
                                         //
                                         $affected_order = $this->model_order->insert_record($affect_param);
 
@@ -1271,8 +1271,8 @@ class Product extends MY_Controller
                                                         $order_affect_param['order_status'] = STATUS_TRUE;
                                                         $order_affect_param['order_payment_comments'] = 'Completed';
                                                         $order_affect_param['order_merchant'] = STRIPE;
-                                                        $order_affect_param['order_stripe_response'] = $charge;
-                                                        $order_affect_param['order_stripe_charge_id'] = $charge_id;
+                                                        $order_affect_param['order_response'] = $charge;
+                                                        $order_affect_param['order_transaction_id'] = $charge_id;
                                                         $affected = $this->model_order->update_by_pk($order_id, $order_affect_param);
 
                                                         // set payment status to in escrow
@@ -1360,7 +1360,7 @@ class Product extends MY_Controller
                                                             "amount" => $order_item['order_item_payment_due'] * 100,
                                                             "currency" => DEFAULT_CURRENCY_CODE,
                                                             "destination" => $order_item['signup_account_id'],
-                                                            "source_transaction" => $order_item['order_stripe_charge_id'],
+                                                            "source_transaction" => $order_item['order_transaction_id'],
                                                         ]);
 
                                                         $updated = $this->model_order_item->update_by_pk(
@@ -1740,8 +1740,8 @@ class Product extends MY_Controller
                         if($orderID) {
                             $affect_param = array();
                             $affect_param['order_payment_status'] = PAYMENT_STATUS_ESCROW;
-                            $affect_param['order_paypal_response'] = serialize($_POST);
-                            $affect_param['order_paypal_order_id'] = $orderID;
+                            $affect_param['order_response'] = serialize($_POST);
+                            $affect_param['order_order_id'] = $orderID;
                             $affected = $this->model_order->update_by_pk($order_id, $affect_param);
 
                             if($affected) {
@@ -1848,7 +1848,7 @@ class Product extends MY_Controller
                             $affect_param = $_POST['product_request'];
 
                             try {
-                                $orderID = $order['order_paypal_order_id'];
+                                $orderID = $order['order_order_id'];
 
                                 if (
                                     $product['product_reference_type'] == PRODUCT_REFERENCE_SERVICE &&

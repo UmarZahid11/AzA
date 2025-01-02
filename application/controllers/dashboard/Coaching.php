@@ -140,6 +140,21 @@ class Coaching extends MY_Controller
                 error_404();
             }
 
+            $data['coaching_cost'] = $data['coaching']['coaching_cost'];
+
+            $current_role_coaching_cost = $this->model_coaching_cost->find_one_active(
+                array(
+                    'where' => array(
+                        'coaching_cost_coaching_id' => $data['coaching']['coaching_id'],
+                        'coaching_cost_membership_id' => $this->user_data['signup_type'],
+                    )
+                )
+            );
+
+            if ($current_role_coaching_cost) {
+                $data['coaching_cost'] = $current_role_coaching_cost['coaching_cost_value'];
+            }
+
             //
             $data['coaching_recording'] = NULL;
             if ($data['coaching']['coaching_uuid']) {
@@ -220,7 +235,7 @@ class Coaching extends MY_Controller
                         } else {
 
                             $session = '';
-                            $merchant = STRIPE;
+                            $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
 
                             //
                             $orderParam['order_user_id'] = $this->userid;
@@ -260,13 +275,28 @@ class Coaching extends MY_Controller
                                 $orderParam['order_payment_comments'] = "Unpaid";
 
                                 //
-                                $session = $this->stripeSessionSetup($coaching, (int) $coaching_cost);
+                                $session = $this->checkoutSessionSetup($coaching, (int) $coaching_cost, $merchant);
                                 
                                 if($session) {
-                                    $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_stripe_session_checkout_id'] = $session ? $session->id : '';
-                                    $coaching_application['coaching_application_checkout_session_response'] = $orderParam['order_stripe_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $session);
-                                    if($session->url) {
-                                        $json_param['session_url'] = $session->url;
+                                    switch($merchant) {
+                                        case STRIPE:
+                                            $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->id : '';
+                                            $coaching_application['coaching_application_checkout_session_response'] = $orderParam['order_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $session);
+                                            if($session->url) {
+                                                $json_param['session_url'] = $session->url;
+                                            }
+                                            break;
+                                        case PAYPAL:
+                                            $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->id : '';
+                                            $coaching_application['coaching_application_checkout_session_response'] = $orderParam['order_response'] = serialize($session);
+                                            if($session->status == 'PAYER_ACTION_REQUIRED') {
+                                                foreach($session->links as $link) {
+                                                    if($link->rel == 'payer-action') {
+                                                        $json_param['session_url'] = $link->href;
+                                                    }
+                                                }
+                                            }
+                                            break;
                                     }
                                 }
                             }
@@ -323,41 +353,84 @@ class Coaching extends MY_Controller
     }
 
     /**
-     * stripeSessionSetup function
+     * checkoutSessionSetup function
      *
      * @param array $coaching
      * @param int $coaching_cost
+     * @param string $merchant
      * @return object?
      */
-    private function stripeSessionSetup(array $coaching, int $coaching_cost)
+    private function checkoutSessionSetup(array $coaching, int $coaching_cost, string $merchant = STRIPE)
     {
+        $session = NULL;
+
         try {
-            $customer = $this->createStripeResource('customers', [
-                'email' => $this->user_data['signup_email']
-            ]);
-            //
-            $product = $this->createStripeResource('products', [
-                'name' => $coaching['coaching_title']
-            ]);
-            $price = $this->createStripeResource('prices', [
-                'unit_amount' => $coaching_cost * 100,
-                'currency' => DEFAULT_CURRENCY_CODE,
-                'product' => $product->id,
-            ]);
-            $checkoutSessionPayload = [
-                'payment_method_types' => ['card'],
-                'customer' => $customer->id,
-                'success_url' => base_url() . 'dashboard/coaching/result/' . JWT::encode($coaching['coaching_id']) . '/' . ORDER_SUCCESS . '/{CHECKOUT_SESSION_ID}',
-                'cancel_url' => base_url() . 'dashboard/coaching/detail/' . JWT::encode($coaching['coaching_id']),
-                'mode' => 'payment',
-                'line_items' => [
-                    [
-                        'price' => $price->id,
-                        'quantity' => 1,
-                    ],
-                ],
-            ];
-            $session = $this->stripe->checkout->sessions->create($checkoutSessionPayload);
+            switch($merchant) {
+                case STRIPE:
+                    $customer = $this->createStripeResource('customers', [
+                        'email' => $this->user_data['signup_email']
+                    ]);
+                    //
+                    $product = $this->createStripeResource('products', [
+                        'name' => $coaching['coaching_title']
+                    ]);
+                    $price = $this->createStripeResource('prices', [
+                        'unit_amount' => $coaching_cost * 100,
+                        'currency' => DEFAULT_CURRENCY_CODE,
+                        'product' => $product->id,
+                    ]);
+                    $checkoutSessionPayload = [
+                        'payment_method_types' => ['card'],
+                        'customer' => $customer->id,
+                        'success_url' => base_url() . 'dashboard/coaching/result/' . JWT::encode($coaching['coaching_id']) . '/' . ORDER_SUCCESS . '/{CHECKOUT_SESSION_ID}',
+                        'cancel_url' => base_url() . 'dashboard/coaching/detail/' . JWT::encode($coaching['coaching_id']),
+                        'mode' => 'payment',
+                        'line_items' => [
+                            [
+                                'price' => $price->id,
+                                'quantity' => 1,
+                            ],
+                        ],
+                    ];
+                    $session = $this->stripe->checkout->sessions->create($checkoutSessionPayload);
+                    break;
+                case PAYPAL:
+                    $purchase_units[] = array(
+                        "amount" => array(
+                            "currency_code" => DEFAULT_CURRENCY_CODE,
+                            "value" => $coaching_cost
+                        ),
+                        "payee" => array(
+                            'email_address' => $this->user_data['signup_email']
+                        ),
+                    );
+                    $url = PAYPAL_URL . PAYPAL_CHECKOUT_URL;
+                    $headers = array();
+                    $headers[] = 'Content-Type: application/json';
+                    $headers[] = 'Authorization: Bearer ' . $this->paypalAccessToken;
+
+                    $body = array(
+                        "intent" => "AUTHORIZE",
+                        "payment_source" => array(
+                            "paypal" => array(
+                                "experience_context" => array(
+                                    "payment_method_preference" => "IMMEDIATE_PAYMENT_REQUIRED",
+                                    "landing_page" => "LOGIN",
+                                    "shipping_preference" => "NO_SHIPPING",
+                                    "user_action" => "PAY_NOW",
+                                    "return_url" => base_url() . 'dashboard/coaching/result/' . JWT::encode($coaching['coaching_id']) . '/' . ORDER_SUCCESS . '/0/' . PAYPAL,
+                                    "cancel_url" => base_url() . 'dashboard/coaching/detail/' . JWT::encode($coaching['coaching_id'])
+                                )
+                            )
+                        ),
+                        "purchase_units" => $purchase_units
+                    );
+
+                    //
+                    $response = $this->curlRequest($url, $headers, $body, TRUE);
+                    $session = json_decode($response);
+                    break;
+            }
             return $session;
         } catch (\Exception $e) {
             $this->session->set_flashdata('stripe_error', $e->getMessage());
@@ -386,7 +459,10 @@ class Coaching extends MY_Controller
             redirect(l('login'));
         }
 
-        if (!$checkoutSessionId)
+        if (!$checkoutSessionId && $merchant == STRIPE)
+            error_404();
+
+        if (!isset($_GET['token']) && $merchant == PAYPAL)
             error_404();
 
         if($coachingId) {
@@ -404,8 +480,6 @@ class Coaching extends MY_Controller
                 );
                 error_404();
             }    
-        } else {
-            error_404();            
         }
 
         $param = array();
@@ -423,22 +497,24 @@ class Coaching extends MY_Controller
             $status = 'unknown';
         }
 
+        $session = "";
         $data['status'] = $status;
 
-        if ($status == 'success') {
+        if ($status == ORDER_SUCCESS) {
+            
             switch($merchant) {
                 case STRIPE:
-                    $session = "";
                     try {
                         $session = $this->stripe->checkout->sessions->retrieve(
                             $checkoutSessionId,
                             []
                         );           
                     } catch (\Exception $e) {
+                        $error = TRUE;
                         $this->session->set_flashdata('stripe_error', $e->getMessage());
                     }
 
-                    if ($session) {
+                    if (!$error) {
                         $payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
 
                         if (!$payment_intent) {
@@ -450,6 +526,7 @@ class Coaching extends MY_Controller
                             $updatedCoaching = $this->model_coaching_application->update_model(
                                 array(
                                     'where' => array(
+                                        'coaching_application_checkout_session_id' => $checkoutSessionId,
                                         'coaching_application_coaching_id' => $data['coaching']['coaching_id'],
                                         'coaching_application_signup_id' => $this->userid
                                     )
@@ -462,18 +539,18 @@ class Coaching extends MY_Controller
                                 )
                             );
 
-        
                             $updatedOrder = $this->model_order->update_model(
                                 array('where' => array(
                                     'order_user_id' => $this->userid,
-                                    'order_stripe_session_checkout_id' => $checkoutSessionId
+                                    'order_session_checkout_id' => $checkoutSessionId
                                 )),
                                 array(
                                     'order_status' => STATUS_ACTIVE,
                                     'order_payment_status' => ($session->status == 'complete') ? 1 : 0,
                                     'order_status_message' => $session->status,
-                                    'order_stripe_transaction_id' => $session->payment_intent,
-                                    'order_stripe_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
+                                    'order_transaction_id' => $session->payment_intent,
+                                    'order_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
+                                    'order_payment_comments' => 'Paid',
                                 )
                             );
         
@@ -483,26 +560,66 @@ class Coaching extends MY_Controller
                                     log_message('ERROR', 'Unable to generate log');
                                 }
                             }
-                        } else {
-                            error_404();
                         }
+                    }
+                    break;
+                case PAYPAL:
+                    $url = PAYPAL_URL . PAYPAL_CHECKOUT_URL . '/' . $_GET['token'];
+                    $headers = array();
+                    $headers[] = 'Content-Type: application/json';
+                    $headers[] = 'Authorization: Bearer ' . $this->paypalAccessToken;
+
+                    $response = $this->curlRequest($url, $headers);
+                    $session = json_decode($response);
+
+                    if($session) {
+                        $updatedCoaching = $this->model_coaching_application->update_model(
+                            array(
+                                'where' => array(
+                                    'coaching_application_checkout_session_id' => $_GET['token'],
+                                    'coaching_application_coaching_id' => $data['coaching']['coaching_id'],
+                                    'coaching_application_signup_id' => $this->userid
+                                )
+                            ),
+                            array(
+                                'coaching_application_transaction_id' => $session->id,
+                                'coaching_application_checkout_session_response' => serialize($session),
+                                'coaching_application_status' => STATUS_ACTIVE,
+                                'coaching_application_payment_status' => STATUS_ACTIVE,
+                            )
+                        );
+
+                        $updatedOrder = $this->model_order->update_model(
+                            array('where' => array(
+                                'order_user_id' => $this->userid,
+                                'order_session_checkout_id' => $_GET['token']
+                            )),
+                            array(
+                                'order_status' => STATUS_ACTIVE,
+                                'order_payment_status' => ($session->status == 'APPROVED') ? 1 : 0,
+                                'order_status_message' => $session->status,
+                                'order_transaction_id' => $session->id,
+                                'order_response' => serialize($session),
+                                'order_payment_comments' => 'Paid',
+                            )
+                        );
                     } else {
-                        error_404();
+                        $error = TRUE;
                     }
                     break;
                 default:
-                    error_404();
+                    $error = TRUE;
             }
-        } else {
+        } else if($status != ORDER_FAILED) {
             $error = TRUE;
         }
         
-        if(!$error) {
+        if(!$error && $status == ORDER_SUCCESS) {
             try {
                 // notification
                 $this->model_notification->sendNotification($this->userid, $this->userid, NOTIFICATION_COACHING_REQUEST_COMPLETED, $data['coaching']['coaching_id'], NOTIFICATION_COACHING_REQUEST_COMPLETED_COMMENT);
                 //
-                if($checkoutSessionId) {
+                if($checkoutSessionId && $merchant == STRIPE) {
                     // $this->send_invoice($checkoutSessionId, $merchant);
 
                     $receipt_url = $payment_intent->charges ? $payment_intent->charges->data[0]->receipt_url : '';
@@ -544,7 +661,8 @@ class Coaching extends MY_Controller
                 );
             }
         } else {
-            $data['status'] = $status = 'unknown';
+            error_404();
+            // $data['status'] = $status = 'unknown';
         }
 
         //

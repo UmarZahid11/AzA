@@ -621,7 +621,7 @@ class Profile extends MY_Controller
                     //
                     $query = 'SELECT * FROM `fb_order`';
                     $query .= ' where order_user_id = ' . $signup['signup_id'];
-                    $query .= ' AND (order_stripe_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
+                    $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
                     //
                     $order = ($this->db->query($query)->row_array());
     
@@ -1398,7 +1398,7 @@ class Profile extends MY_Controller
                 //
                 $query = 'SELECT * FROM `fb_order`';
                 $query .= ' where order_user_id = ' . $this->userid;
-                $query .= ' AND (order_stripe_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
+                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
                 //
                 $order = ($this->db->query($query)->row_array());
 
@@ -1591,7 +1591,7 @@ class Profile extends MY_Controller
                 //
                 $query = 'SELECT * FROM `fb_order`';
                 $query .= ' where order_user_id = ' . $this->userid;
-                $query .= ' AND (order_stripe_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_paypal_session_subscription_id = "' . $checkoutSessionId . '")';
+                $query .= ' AND (order_transaction_id = "' . $checkoutSessionId . '" OR ' . ' order_session_subscription_id = "' . $checkoutSessionId . '")';
                 //
                 $order = ($this->db->query($query)->row_array());
 
@@ -1711,7 +1711,7 @@ class Profile extends MY_Controller
                 $this->model_order->update_model(
                     array(
                         'where' => array(
-                            'order_stripe_transaction_id' => $this->user_data['signup_subscription_id']
+                            'order_transaction_id' => $this->user_data['signup_subscription_id']
                         )
                     ),
                     array(
@@ -1723,7 +1723,7 @@ class Profile extends MY_Controller
                 $this->model_order->update_model(
                     array(
                         'where' => array(
-                            'order_paypal_session_subscription_id' => $this->user_data['signup_subscription_id']
+                            'order_session_subscription_id' => $this->user_data['signup_subscription_id']
                         )
                     ),
                     array(

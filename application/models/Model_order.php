@@ -194,9 +194,9 @@ class Model_order extends MY_Model
                 'rules' => 'trim'
             ),
 
-            'order_stripe_session_checkout_id' => array(
+            'order_session_checkout_id' => array(
                 'table' => $this->_table,
-                'name' => 'order_stripe_session_checkout_id',
+                'name' => 'order_session_checkout_id',
                 'label' => 'Checkout Id',
                 'type' => 'hidden',
                 'type_dt' => 'text',
