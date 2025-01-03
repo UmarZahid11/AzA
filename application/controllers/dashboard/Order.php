@@ -638,6 +638,8 @@ class Order extends MY_Controller
                     break;
             }
 
+            $data['paypalAccessToken'] = $this->paypalAccessToken;
+
             //
             $this->layout_data['title'] = 'Invoices' . ' | ' . $this->layout_data['title'];
             //
@@ -645,6 +647,38 @@ class Order extends MY_Controller
         } else {
             error_404();
         }
+    }
+
+    /**
+     * invoiceReceipt function
+     *
+     * @param integer $order_id
+     * @return void
+     */
+    function invoiceReceipt(int $order_id) {
+        $result['order'] = $order_data = $this->model_order->find_by_pk($order_id);
+        if($result['order']) {
+            $result['order_items'] = $this->model_order_item->find_all_active(
+                array(
+                    'where' => array(
+                        'order_item_order_id' => $result['order']['order_id']
+                    )
+                )
+            );
+        }
+
+        $logo = $this->model_logo->find_one(
+            array('where' => array('logo_status' => 1))
+        ); 
+        $data['test_mode'] = false;
+        $data['logo_data'] = $logo;
+        $data['logo'] = get_image($logo['logo_image_path'], $logo['logo_image']);
+        $data['order_no'] = order_no($order_id);
+        $data['order_name'] = $order_data['order_firstname'] . ' ' . $order_data['order_lastname'];
+
+        //
+        $result['data'] = $data;
+        $this->load->view('_layout/email_template/general_invoice_template', $result);       
     }
 
     /**

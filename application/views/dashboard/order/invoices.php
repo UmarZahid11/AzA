@@ -12,6 +12,7 @@
                 <th><?= __('Number') ?></th>
                 <th><?= __('Total') ?></th>
                 <th><?= __('Status') ?></th>
+                <th>Merchant</th>
                 <th><?= __('Date') ?></th>
                 <th><?= __('Actions') ?></th>
             </tr>
@@ -68,6 +69,8 @@
                             <?php endif; ?>
                             <td><?= ucfirst($status) ?></td>
 
+                            <td><?= $invoice['order_merchant']; ?></td>
+
                             <?php if($decoded_response && property_exists($decoded_response, 'created')) : ?>
                                 <?php $created = $decoded_response->created; ?>
                             <?php endif; ?>
@@ -117,32 +120,24 @@
                             if($invoice['order_merchant'] == STRIPE) {
                                 $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
                                 $payment_intent = $stripe->paymentIntents->retrieve($invoice['order_transaction_id']);
-                                if($payment_intent && $payment_intent->charges) {
-                                    $decoded_response = $payment_intent->charges->data[0];
+                                if($payment_intent && ($payment_intent->charges || $payment_intent->latest_charge)) {
+                                    if($payment_intent->charges) {
+                                        $decoded_response = $payment_intent->charges->data[0];
+                                    }
+                                    if($payment_intent->latest_charge) {
+                                        $decoded_response = $stripe->charges->retrieve($payment_intent->latest_charge);
+                                    }
                                 }
                             }
+
                             if($invoice['order_merchant'] == PAYPAL) {
-                  
                                 $url = PAYPAL_URL . PAYPAL_CHECKOUT_URL . '/' . $invoice['order_session_checkout_id'];
                                 $headers = array();
                                 $headers[] = 'Content-Type: application/json';
                                 $headers[] = 'Authorization: Bearer ' . $paypalAccessToken;
-           
-                                $ch = curl_init();
-                                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-                                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                                curl_setopt($ch, CURLOPT_URL, $url);
-                                curl_setopt($ch, CURLOPT_TIMEOUT, 80);
-                                curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                                $response = curl_exec($ch);
-                                $err = curl_error($ch);
-                                curl_close($ch);
-
+            
+                                $response = curlRequest($url, $headers);
                                 $decoded_response = json_decode($response);
-                                // debug($decoded_response, 1);
                             }
                         ?>
                         <tr>
@@ -155,14 +150,18 @@
                                 <?php $amount = $decoded_response->amount; ?>
                             <?php elseif($decoded_response && isset($decoded_response->plan->amount)) : ?>
                                 <?php $amount = $decoded_response->plan->amount; ?>
+                            <?php elseif($decoded_response && isset($decoded_response->purchase_units) && $decoded_response->purchase_units[0]->amount->value) : ?>
+                                <?php $amount = $decoded_response->purchase_units[0]->amount->value; ?>
                             <?php endif; ?>
 
                             <td><?= is_int($amount) && $amount > 0 ? price($amount / 100) : price($amount) ?></td>
 
-                            <?php if($decoded_response && ($decoded_response->status)) : ?>
+                            <?php if($decoded_response && isset($decoded_response->status)) : ?>
                                 <?php $status = $decoded_response->status; ?>
                             <?php endif; ?>
                             <td><?= ucfirst($status) ?></td>
+
+                            <td><?= $invoice['order_merchant']; ?></td>
 
                             <?php if($decoded_response && isset($decoded_response->created)) : ?>
                                 <?php $created = $decoded_response->created; ?>
@@ -192,7 +191,8 @@
                                 <?php if($receipt_url): ?>
                                     <a href="<?= $receipt_url ?>" target="_blank" data-toggle="tooltip" data-bs-placement="top" title="View receipt"><i class="fa fa-file-pdf-o"></i></a>
                                 <?php else: ?>
-                                    The receipt is not available.
+                                    <a href="<?= l('dashboard/order/invoiceReceipt/' . $invoice['order_id']) ?>" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
+                                    <!-- The receipt is not available. -->
                                 <?php endif; ?>
                             </td>
                         </tr>

@@ -50,7 +50,7 @@ class Model_email extends MY_Model
     function __construct()
     {
         parent::__construct();
-        $this->customerSupportEmail = g('db.admin.support_email') ?? 'info@azaverze.com';
+        $this->customerSupportEmail = g('db.admin.support_email') ?? 'contact@azaverze.com';
         self::_set();
     }
 
@@ -683,11 +683,51 @@ class Model_email extends MY_Model
         }
 
         $send_from = $this->customerSupportEmail;
-
         $subject = 'Membership Subscription Acknowledgement';
 
         parent::email($send_to, $send_from, $subject, $content);
 
         return true;
     }
+
+    /**
+     * generalOrderInvoice function
+     *
+     * @param integer $order_id
+     * @return void
+     */
+    function generalOrderInvoice(int $order_id) {
+        $result['order'] = $order_data = $this->model_order->find_by_pk($order_id);
+        if($result['order']) {
+            $result['order_items'] = $this->model_order_item->find_all_active(
+                array(
+                    'where' => array(
+                        'order_item_order_id' => $result['order']['order_id']
+                    )
+                )
+            );
+        }
+
+        $logo = $this->model_logo->find_one(
+            array('where' => array('logo_status' => 1))
+        );
+
+        $data['test_mode'] = false;
+        $data['logo_data'] = $logo;
+        $data['logo'] = get_image($logo['logo_image_path'], $logo['logo_image']);
+        $data['order_no'] = order_no($order_id);
+        $data['order_name'] = $order_data['order_firstname'] . ' ' . $order_data['order_lastname'];
+
+        //
+        $result['data'] = $data;
+        $content = $this->load->view('_layout/email_template/general_invoice_template', $result, TRUE);
+
+        $send_to = $order_data['order_email'];
+        $send_from = $this->customerSupportEmail;
+        $subject = 'Order invoice # ' . $data['order_no'];
+
+        parent::email($send_to, $send_from, $subject, $content);
+
+        return true;
+    } 
 }

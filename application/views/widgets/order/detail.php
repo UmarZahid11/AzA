@@ -8,8 +8,6 @@
                 <th class="font-12">
                     Qty
                 </th>
-            <?php endif; ?>
-            <?php if (in_array($order['order_reference_type'], [ORDER_REFERENCE_PRODUCT, ORDER_REFERENCE_TECHNOLOGY])) : ?>
                 <th class="font-12">
                     Cost
                 </th>
@@ -43,7 +41,7 @@
                 }
                 ?>
             </th>
-            <?php if (in_array($order['order_reference_type'], [ORDER_REFERENCE_MEMBERSHIP, ORDER_REFERENCE_JOB])) : ?>
+            <?php if (in_array($order['order_reference_type'], [ORDER_REFERENCE_MEMBERSHIP, ORDER_REFERENCE_JOB, ORDER_REFERENCE_TECHNOLOGY_LISTING])) : ?>
                 <th class="font-12">
                     ..
                 </th>
@@ -73,6 +71,7 @@
                     break;
                 case ORDER_REFERENCE_TECHNOLOGY:
                 case ORDER_REFERENCE_PRODUCT:
+                    $product_cost = 0;
                     $item_detail = $this->model_product->find_by_pk($value['order_item_product_id']);
                     switch ($item_detail['product_reference_type']) {
                         case PRODUCT_REFERENCE_PRODUCT:

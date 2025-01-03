@@ -454,8 +454,10 @@ class Coaching extends MY_Controller
     {
         global $config;
 
-        $error = FALSE;
         $data = array();
+        $updatedOrder = 0;
+        $order = [];
+
         if ($this->userid == 0) {
             $this->session->set_flashdata('error', __(ERROR_MESSAGE_LOGIN));
             redirect(l('login'));
@@ -512,20 +514,15 @@ class Coaching extends MY_Controller
                             []
                         );           
                     } catch (\Exception $e) {
-                        $error = TRUE;
                         $this->session->set_flashdata('stripe_error', $e->getMessage());
                     }
 
-                    if (!$error) {
+                    if ($session) {
                         $payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
 
-                        if (!$payment_intent) {
-                            $error = TRUE;
-                        }
-        
-                        if (!$error) {
+                        if ($payment_intent) {
 
-                            $updatedCoaching = $this->model_coaching_application->update_model(
+                            $this->model_coaching_application->update_model(
                                 array(
                                     'where' => array(
                                         'coaching_application_checkout_session_id' => $checkoutSessionId,
@@ -541,25 +538,36 @@ class Coaching extends MY_Controller
                                 )
                             );
 
-                            $updatedOrder = $this->model_order->update_model(
-                                array('where' => array(
-                                    'order_user_id' => $this->userid,
-                                    'order_session_checkout_id' => $checkoutSessionId
-                                )),
+                            $order = $this->model_order->find_one(
                                 array(
-                                    'order_status' => STATUS_ACTIVE,
-                                    'order_payment_status' => ($session->status == 'complete') ? 1 : 0,
-                                    'order_status_message' => $session->status,
-                                    'order_transaction_id' => $session->payment_intent,
-                                    'order_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
-                                    'order_payment_comments' => 'Paid',
+                                    'where' => array(
+                                        'order_user_id' => $this->userid,
+                                        'order_session_checkout_id' => $checkoutSessionId
+                                    )
                                 )
                             );
+    
+                            if($order) {
+                                $updatedOrder = $this->model_order->update_model(
+                                    array('where' => array(
+                                        'order_user_id' => $this->userid,
+                                        'order_session_checkout_id' => $checkoutSessionId
+                                    )),
+                                    array(
+                                        'order_status' => STATUS_ACTIVE,
+                                        'order_payment_status' => ($session->status == 'complete') ? 1 : 0,
+                                        'order_status_message' => $session->status,
+                                        'order_transaction_id' => $session->payment_intent,
+                                        'order_response' => str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))),
+                                        'order_payment_comments' => 'Paid',
+                                    )
+                                );
         
-                            if ($updatedOrder && $updatedCoaching) {
-                                // saving to log for webhook differentiaition
-                                if(!$this->saveStripeLog($this->userid, STRIPE_LOG_REFERENCE_COACHING, $this->userid, STRIPE_LOG_RESOURCE_TYPE['checkout_sessions'], $session->id, str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))))) {
-                                    log_message('ERROR', 'Unable to generate log');
+                                if ($updatedOrder) {
+                                    // saving to log for webhook differentiaition
+                                    if(!$this->saveStripeLog($this->userid, STRIPE_LOG_REFERENCE_COACHING, $this->userid, STRIPE_LOG_RESOURCE_TYPE['checkout_sessions'], $session->id, str_replace('Stripe\Checkout\Session', '', str_replace('Stripe\Checkout\Session JSON:', '', ($session))))) {
+                                        log_message('ERROR', 'Unable to generate log');
+                                    }
                                 }
                             }
                         }
@@ -575,7 +583,7 @@ class Coaching extends MY_Controller
                     $session = json_decode($response);
 
                     if($session) {
-                        $updatedCoaching = $this->model_coaching_application->update_model(
+                        $this->model_coaching_application->update_model(
                             array(
                                 'where' => array(
                                     'coaching_application_checkout_session_id' => $_GET['token'],
@@ -591,80 +599,81 @@ class Coaching extends MY_Controller
                             )
                         );
 
-                        $updatedOrder = $this->model_order->update_model(
-                            array('where' => array(
-                                'order_user_id' => $this->userid,
-                                'order_session_checkout_id' => $_GET['token']
-                            )),
+                        $order = $this->model_order->find_one(
                             array(
-                                'order_status' => STATUS_ACTIVE,
-                                'order_payment_status' => ($session->status == 'APPROVED') ? 1 : 0,
-                                'order_status_message' => $session->status,
-                                'order_transaction_id' => $session->id,
-                                'order_response' => serialize($session),
-                                'order_payment_comments' => 'Paid',
+                                'where' => array(
+                                    'order_user_id' => $this->userid,
+                                    'order_session_checkout_id' => $_GET['token']
+                                )
                             )
                         );
-                    } else {
-                        $error = TRUE;
-                    }
-                    break;
-                default:
-                    $error = TRUE;
-            }
-        } else if($status != ORDER_FAILED) {
-            $error = TRUE;
-        }
-        
-        if(!$error && $status == ORDER_SUCCESS) {
-            try {
-                // notification
-                $this->model_notification->sendNotification($this->userid, $this->userid, NOTIFICATION_COACHING_REQUEST_COMPLETED, $data['coaching']['coaching_id'], NOTIFICATION_COACHING_REQUEST_COMPLETED_COMMENT);
-                //
-                if($checkoutSessionId && $merchant == STRIPE) {
-                    // $this->send_invoice($checkoutSessionId, $merchant);
 
-                    $receipt_url = $payment_intent->charges ? $payment_intent->charges->data[0]->receipt_url : '';
-
-                    if ($receipt_url && $this->user_data['signup_email'] && ENVIRONMENT != 'development') {
-                        try {
-                            // Generate Body of Email
-                            $stripeReceipt_url = file_get_contents($receipt_url);
-                            $matches = array();
-                            if($stripeReceipt_url) {
-                                preg_match("/<body[^>]*>(.*?)<\/body>/is", $stripeReceipt_url, $matches);
-                            }
-                            $to = $this->user_data['signup_email'];
-                            if(!empty($matches)) {
-                                $this->model_email->notification_order_charge_receipt($to, $matches[1], $config['site_name'] . ' Order Payment Receipt');
-                            }
-                        } catch (\Exception $e) {
-                            log_message('ERROR', $e->getMessage());
-                            //
-                            $this->_log_message(
-                                LOG_TYPE_GENERAL,
-                                LOG_SOURCE_SERVER,
-                                LOG_LEVEL_ERROR,
-                                $e->getMessage(),
-                                ''
+                        if($order) {
+                            $updatedOrder = $this->model_order->update_model(
+                                array('where' => array(
+                                    'order_user_id' => $this->userid,
+                                    'order_session_checkout_id' => $_GET['token']
+                                )),
+                                array(
+                                    'order_status' => STATUS_ACTIVE,
+                                    'order_payment_status' => ($session->status == 'APPROVED') ? 1 : 0,
+                                    'order_status_message' => $session->status,
+                                    'order_transaction_id' => $session->id,
+                                    'order_response' => serialize($session),
+                                    'order_payment_comments' => 'Paid',
+                                )
                             );
                         }
                     }
-                }
-            } catch (\Exception $e) {
-                $this->session->set_flashdata('error', $e->getMessage());
+                    break;
+                default:
+                    error_404();
+            }
+        }
+        
+        if($order && $updatedOrder) {
+            // Notification
+            $this->model_notification->sendNotification($this->userid, $this->userid, NOTIFICATION_COACHING_REQUEST_COMPLETED, $data['coaching']['coaching_id'], NOTIFICATION_COACHING_REQUEST_COMPLETED_COMMENT);
+
+            if(ENVIRONMENT != 'development') {
                 //
-                $this->_log_message(
-                    LOG_TYPE_GENERAL,
-                    LOG_SOURCE_SERVER,
-                    LOG_LEVEL_ERROR,
-                    $e->getMessage(),
-                    ''
-                );
+                switch($merchant) {
+                    case STRIPE:
+                        $receipt_url = $payment_intent->charges ? $payment_intent->charges->data[0]->receipt_url : '';
+                        if ($receipt_url && $this->user_data['signup_email'] && ENVIRONMENT != 'development') {
+                            try {
+                                // Generate Body of Email
+                                $stripeReceipt_url = file_get_contents($receipt_url);
+                                $matches = array();
+                                if($stripeReceipt_url) {
+                                    preg_match("/<body[^>]*>(.*?)<\/body>/is", $stripeReceipt_url, $matches);
+                                }
+                                $to = $this->user_data['signup_email'];
+                                if(!empty($matches)) {
+                                    $this->model_email->notification_order_charge_receipt($to, $matches[1], $config['site_name'] . ' Order Payment Receipt');
+                                }
+                            } catch (\Exception $e) {
+                                log_message('ERROR', $e->getMessage());
+                                //
+                                $this->_log_message(
+                                    LOG_TYPE_GENERAL,
+                                    LOG_SOURCE_SERVER,
+                                    LOG_LEVEL_ERROR,
+                                    $e->getMessage(),
+                                    ''
+                                );
+                            }
+                        } else {
+                            $this->model_email->generalOrderInvoice($order['order_id']);
+                        }
+                        break;
+                    case PAYPAL:
+                        $this->model_email->generalOrderInvoice($order['order_id']);
+                        break;
+                }
             }
         } else {
             error_404();
-            // $data['status'] = $status = 'unknown';
         }
 
         //

@@ -48,7 +48,7 @@
 
                                     <h6><?= strtoupper($data['membership']['membership_title']) ?></h6>
                                     <h3>
-                                        <?= $data['membership']['membership_cost'] == 0 ? 'FREE' : price($data['membership']['membership_cost']) ?> 
+                                        <?= $data['membership']['membership_cost'] == 0 ? FREE_COST_KEYWORD : price($data['membership']['membership_cost']) ?> 
                                         <?php if($data['membership']['membership_cost'] != 0) : ?>
                                             <?= ('<small>' . 
                                                 ($data['membership']['membership_interval']['membership_interval_name'] != 'Custom' ? (' / ' . $data['membership']['membership_interval']['membership_interval_name']) : $data['membership']['membership_custom_description'])
