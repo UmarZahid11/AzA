@@ -501,7 +501,7 @@ class Donation extends MY_Controller
     function plaidWebhook() {
         global $config;
 
-        $payload = (object) @file_get_contents('php://input');
+        $payload = json_decode(file_get_contents('php://input'));
         //
         $this->_log_message(
             LOG_TYPE_GENERAL,
@@ -512,7 +512,9 @@ class Donation extends MY_Controller
         );
         
         if($payload && $payload->webhook_code == 'TRANSFER_EVENTS_UPDATE' && $payload->webhook_type == 'TRANSFER') {
+
             $transfer_events = $this->getPlaidTransferList();
+
             if($transfer_events && property_exists($transfer_events, 'transfer_events')) {
                 foreach($transfer_events->transfer_events as $transfer_event) {
                     if($transfer_event->event_type == 'posted') {
@@ -525,6 +527,7 @@ class Donation extends MY_Controller
                             )
                         );
                         if($data['donation']) {
+
                             $this->model_donation->update_by_pk(
                                 $data['donation']['donation_id'],
                                 array(
@@ -578,17 +581,25 @@ class Donation extends MY_Controller
                                     )
                                 );
                                 
-                                $this->model_order->update_model(
-                                    array('where' => array(
-                                        'order_session_checkout_id' => $transfer_event->transfer_id
-                                    )),
+                                $order = $this->model_order->find_one(
                                     array(
-                                        'order_status' => STATUS_ACTIVE,
-                                        'order_payment_status' => STATUS_ACTIVE,
-                                        'order_status_message' => 'Completed',
-                                        'order_payment_comments' => 'Paid',
+                                        'where' => array(
+                                            'order_session_checkout_id' => $transfer_event->transfer_id
+                                        )
                                     )
                                 );
+                                if($order) {
+                                    $this->model_order->update_by_pk(
+                                        $order['order_id'],
+                                        array(
+                                            'order_status' => STATUS_ACTIVE,
+                                            'order_payment_status' => STATUS_ACTIVE,
+                                            'order_status_message' => 'Completed',
+                                            'order_payment_comments' => 'Paid',
+                                        )
+                                    );
+                                    $this->model_email->generalOrderInvoice($order['order_id']);
+                                }
                             }
                         }
                     }
