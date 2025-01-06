@@ -117,7 +117,7 @@
             <div class="col-6" id="requestDiv">
                 <h4>Request participation</h4>
                 <?php if (!$this->model_coaching_application->userApplicationExists($this->userid, $coaching['coaching_id'])) : ?>
-                    <form action="javascript:;" method="POST" id="requestForm">
+                    <form action="javascript:;" method="POST" id="requestForm" novalidate>
                         <input type="hidden" name="_token" value="<?= $this->csrf_token ?>" />
                         <input type="hidden" name="coaching_application[coaching_application_signup_id]" value="<?= $this->userid ?>" />
                         <input type="hidden" name="coaching_application[coaching_application_coaching_id]" value="<?= $coaching['coaching_id'] ?>" />
@@ -217,11 +217,14 @@
                         </p>
                         <?php if ($user_application['coaching_application_payment_status'] == 0) : ?>
                             <?php
+                                $session = '';
                                 $session_url = '';
                                 switch($user_application['coaching_application_merchant']) {
                                     case STRIPE:
                                         $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
-                                        $session = $stripe->checkout->sessions->retrieve($user_application['coaching_application_checkout_session_id']);
+                                        try {
+                                            $session = $stripe->checkout->sessions->retrieve($user_application['coaching_application_checkout_session_id']);
+                                        } catch(\Exception $e) {}
                                         if ($session) {
                                             $session_url = $session->url;
                                         }
@@ -277,7 +280,7 @@
                                             </svg>
                                         </span>
                                     </label>
-                                    <button type="submit" class="btn btn-custom" id="newPaymentFormBtn">Request new payment link</button>
+                                    <button type="submit" class="btn btn-custom" id="newPaymentFormBtn" data-html="Request new payment link">Request new payment link</button>
                                 </form>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -294,7 +297,17 @@
 
 <script>
     $(document).ready(function() {
-        $('#requestForm').on('submit', function() {
+        $('#requestForm').on('submit', function(event) {
+            event.preventDefault()
+            if (!$(this)[0].checkValidity()) {
+                event.stopPropagation()
+                $(this).addClass('was-validated');
+                $(this).find(":invalid").first().focus();
+                return false;
+            } else {
+                $(this).removeClass('was-validated');
+            }
+
             new Promise((resolve, reject) => {
                 jQuery.ajax({
                     url: '<?= l('dashboard/coaching/saveApplication') ?>',
@@ -323,6 +336,45 @@
                         $('#requestBtn').html('Sent');
                         setTimeout(function() {
                             $('#requestDiv').html("<h4>Request participation</h4><p>The request has been sent!</p>");
+                            if (response.session_url) {
+                                location.href = response.session_url;
+                            }
+                        }, 1000);
+                    } else {
+                        toastr.error(response.txt);
+                    }
+                }
+            );
+        });
+
+        $('#newPaymentForm').on('submit', function() {
+            new Promise((resolve, reject) => {
+                jQuery.ajax({
+                    url: '<?= l('dashboard/coaching/saveApplication') ?>',
+                    type: "POST",
+                    data: $('#newPaymentForm').serialize(),
+                    async: true,
+                    dataType: 'json',
+                    success: function(response) {
+                        resolve(response)
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                    },
+                    beforeSend: function() {
+                        $('#newPaymentFormBtn').attr('disabled', true);
+                        $('#newPaymentFormBtn').html('Requesting ...');
+                    },
+                    complete: function() {
+                        $('#newPaymentFormBtn').attr('disabled', false);
+                        $('#newPaymentFormBtn').html($('#newPaymentFormBtn').data('html'));
+                    }
+                });
+            }).then(
+                function(response) {
+                    if (response.status) {
+                        $('#newPaymentFormBtn').html('Sent');
+                        setTimeout(function() {
                             if (response.session_url) {
                                 location.href = response.session_url;
                             }

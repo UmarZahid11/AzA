@@ -16,7 +16,7 @@ body { background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0,
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-    <link rel="shortcut icon" type="image/png" href="<?= get_image($logo_data['logo_image_path'], $logo_data['logo_favicon']); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= isset($data['logo_data']) ? get_image($data['logo_data']['logo_image_path'], $data['logo_data']['logo_favicon']) : ''; ?>">
 </head>
 
 <body class="body">
@@ -24,7 +24,7 @@ body { background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0,
         <?php echo '<center><h3>TEST MODE</h3></center>'; ?>
     <?php endif; ?>
 
-    <table width="622" border="0" align="center" cellpadding="0" cellspacing="0" style="background:#f3f4f8; border:#d8d8d8 1px solid; padding: 20px;">
+    <table width="400" border="0" align="center" cellpadding="0" cellspacing="0" style="background:#f3f4f8; border:#d8d8d8 1px solid; padding: 20px;">
         <tr>
             <td>
                 <table width="622" border="0" align="center" cellpadding="0" cellspacing="0">

@@ -44,7 +44,7 @@ if (!$userdata) {
         </a>
 
         <a 
-            href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? l('dashboard/coaching') : 'javascript:;'; ?>"
+            href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? l('dashboard/coaching/listing') : 'javascript:;'; ?>"
         >
             <i class="customFaIcon fa fa-desktop"></i>
             <span><?= __('Coachings') ?></span>

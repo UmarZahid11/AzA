@@ -216,28 +216,69 @@ class Coaching extends MY_Controller
                             $coaching_cost = $current_role_coaching_cost['coaching_cost_value'];
                         }
 
+                        $session = '';
+                        $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
+
+                        //
                         $userApplication = $this->model_coaching_application->getUserApplication((int) $coaching_application['coaching_application_signup_id'], (int) $coaching_application['coaching_application_coaching_id']);
 
                         if ($userApplication) {
-                            try {
+                            if(!$userApplication['coaching_application_payment_status']) {
 
-                                // on update
-                                if ($userApplication['coaching_application_transaction_id']) {
-
-                                    $transaction_detail = $this->resource('charge', $userApplication['coaching_application_transaction_id']);
-
-                                    $affected_application = $this->model_coaching_application->update_by_pk(
-                                        $userApplication['coaching_application_id'],
-                                        $coaching_application
-                                    );
+                                if ($coaching_cost != 0) {
+                                    //
+                                    $session = $this->checkoutSessionSetup($coaching, (int) $coaching_cost, $merchant);
+                                                                    
+                                    if($session) {
+                                        switch($merchant) {
+                                            case STRIPE:
+                                                $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->id : '';
+                                                $coaching_application['coaching_application_checkout_session_response'] = $orderParam['order_response'] = str_replace('Stripe\Checkout\Session JSON:', '', (string) $session);
+                                                if($session->url) {
+                                                    $json_param['session_url'] = $session->url;
+                                                }
+                                                break;
+                                            case PAYPAL:
+                                                $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->id : '';
+                                                $coaching_application['coaching_application_checkout_session_response'] = $orderParam['order_response'] = serialize($session);
+                                                if($session->status == 'PAYER_ACTION_REQUIRED') {
+                                                    foreach($session->links as $link) {
+                                                        if($link->rel == 'payer-action') {
+                                                            $json_param['session_url'] = $link->href;
+                                                        }
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                    }
+                                } else {
+                                    $coaching_application['coaching_application_status'] = STATUS_ACTIVE;
+                                    $coaching_application['coaching_application_payment_status'] = STATUS_ACTIVE;
+                                    //
+                                    $orderParam['order_status'] = STATUS_ACTIVE;
+                                    $orderParam['order_payment_status'] = STATUS_ACTIVE;
+                                    $orderParam['order_status_message'] = "Completed";
+                                    $orderParam['order_payment_comments'] = "Paid";    
                                 }
-                            } catch (Exception $e) {
-                                $json_param['txt'] = $e->getMessage();
+
+                                $affected_application = $this->model_coaching_application->update_by_pk(
+                                    $userApplication['coaching_application_id'],
+                                    $coaching_application
+                                );
+
+                                $this->model_order->update_model(
+                                    array(
+                                        'where' => array(
+                                            'order_reference_type' => ORDER_REFERENCE_COACHING,
+                                            'order_reference_id' => $userApplication['coaching_application_id'],
+                                        ),
+                                    ),
+                                    $orderParam
+                                );
+                            } else {
+                                $json_param['txt'] = 'The application payment has already been completed!';
                             }
                         } else {
-
-                            $session = '';
-                            $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
 
                             //
                             $orderParam['order_user_id'] = $this->userid;
@@ -308,12 +349,12 @@ class Coaching extends MY_Controller
         
                                 // $id -> coaching_id
                                 $orderParam['order_reference_id'] = $affected_application;
-                                $insertedOrder = $this->model_order->insert_record($orderParam);
+                                $affectedOrder = $this->model_order->insert_record($orderParam);
 
-                                if ($insertedOrder) {
+                                if ($affectedOrder) {
                                     $itemParam = array();
                                     $itemParam['order_item_status'] = STATUS_ACTIVE;
-                                    $itemParam['order_item_order_id'] = $insertedOrder;
+                                    $itemParam['order_item_order_id'] = $affectedOrder;
                                     // $id -> membership_id
                                     $itemParam['order_item_product_id'] = $affected_application;
                                     $itemParam['order_item_user_id'] = $this->userid;
@@ -673,7 +714,7 @@ class Coaching extends MY_Controller
                 }
             }
         } else {
-            error_404();
+            // error_404();
         }
 
         //
