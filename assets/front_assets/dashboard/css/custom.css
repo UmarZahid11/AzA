@@ -6285,7 +6285,9 @@ ul.main-navigation-menu>li>a img
     transition: opacity var(--trans-dur);
   }
   .checkbox:hover,
-  .radio:hover {
+  .radio:hover,
+  .checkbox.disabled,
+  .radio.disabled {
     background-color: var(--light-gray2);
   }
   .checkbox:has(.checkbox__input:checked,

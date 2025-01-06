@@ -56,7 +56,7 @@
                 <?php endif; ?>
 
                 <!-- check if user coaching joining request is accepted -->
-                <?php if (!$this->model_signup->hasRole(ROLE_0) && $user_application) : ?>
+                <?php if (!$this->model_signup->hasRole(ROLE_0) && $user_application && $user_application['coaching_application_status']) : ?>
                     <?php if ($coaching['coaching_current_status'] == COACHING_STARTED) : ?>
                         <li>
                             Join URL:
@@ -73,7 +73,7 @@
 
                 <li>Created on: <?= date('Y-m-d H:i:s', strtotime($coaching['coaching_createdon'])) ?></li>
 
-                <?php if ($this->model_signup->hasRole(ROLE_0) || $user_application) : ?>
+                <?php if ($this->model_signup->hasRole(ROLE_0) || ($user_application && $user_application['coaching_application_status'])) : ?>
                     <li>Coaching recording:
                         <?php
                         if ($coaching_recording && is_object($coaching_recording) && property_exists($coaching_recording, 'recording_files')) {
@@ -135,7 +135,8 @@
                                 <textarea name="coaching_application[coaching_application_message]" class="form-control" maxlength="1000"></textarea>
                             </div>
                             <?php if (isset($coaching_cost) && $coaching_cost > 0) : ?>
-                                <div class="col-6 my-2">
+                                <div class="col-12 my-2">
+                                    <label>Payment Method <span class="text-danger">*</span></label>
                                     <label class="radio">
                                         <input class="radio__input" type="radio" name="coaching_application[coaching_application_merchant]" value="<?= STRIPE ?>" checked required />
                                         <span
@@ -158,6 +159,21 @@
                                                     <path d="M421.1 634.9H292l112.2-468.7H569c30.1 0 56.8 2.1 79.3 6.2 22.8 4.2 42.8 11.6 59.5 21.9 16.7 10.5 29.7 24.4 38.5 41.2s13.2 37.8 13.2 62.5c0 56-23.5 101.9-70 136.2-46 34-110.9 51.2-193 51.2h-41.1zm-116.6-9.8h108.7l34.5-149.5h48.9c79.9 0 142.9-16.6 187.1-49.3 21.9-16.2 38.6-35.2 49.5-56.4s16.4-45.4 16.4-71.8c0-23.1-4.1-42.6-12.1-58-8-15.3-19.7-27.8-34.9-37.4-15.6-9.7-34.5-16.6-56.1-20.6-21.9-4-48-6.1-77.6-6.1h-157z" fill="#fff" />
                                                     <path d="M701.8 247c0 54.6-22.7 98.7-68 132.2s-108.6 50.2-190 50.2h-45l-34.5 149.5H245.4L351.3 120h164.9c30 0 56.1 2.1 78.5 6.2 22.3 4.1 41.6 11.2 57.8 21.3 16 10.1 28.3 23.2 36.7 39.3 8.4 16 12.6 36.1 12.6 60.2z" fill="#0f3572" />
                                                     <path d="M368.2 583.8h-129l108.1-468.7h168.9c30.1 0 56.8 2.1 79.3 6.2 22.8 4.2 42.8 11.6 59.5 21.9 16.7 10.5 29.7 24.4 38.5 41.2s13.2 37.8 13.2 62.5c0 56-23.5 101.9-70 136.2-46 34-110.9 51.2-193 51.2h-41.1zm-116.6-9.9h108.8l34.5-149.5h48.9c79.9 0 142.9-16.6 187.1-49.3 21.9-16.2 38.6-35.2 49.5-56.4s16.4-45.4 16.4-71.8c0-23.1-4.1-42.6-12.1-58-8-15.3-19.7-27.8-34.9-37.4-15.6-9.7-34.5-16.6-56.1-20.6-21.9-4-48-6.1-77.6-6.1h-161zm328-310.6c-.9 14-3.7 24.3-12.3 36.2-8.5 11.9-18.5 19.6-31.9 26-8.1 3.8-16.5 6.3-25.3 7.5s-19.3 1.9-31.6 1.9h-59.1l33.1-118.6h53.7c13.7 0 24.7.2 33 2.1 8.3 1.8 15.1 4.3 20.2 7.4 7.1 4.2 12.8 9.3 16.1 15.8 4.1 7.6 4.6 12.5 4.1 21.7z" fill="#fff" />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                    <label class="radio mt-2">
+                                        <input class="radio__input" type="radio" name="coaching_application[coaching_application_merchant]" value="<?= PLAID ?>" required />
+                                        <span class="radio__label">
+                                            <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="120" height="60" viewBox="0 0 130 50" preserveAspectRatio="xMidYMid meet">
+                                                <g transform="translate(0.000000,48.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                    <path d="M113 462 c-34 -10 -64 -20 -68 -23 -3 -4 -14 -37 -25 -75 l-20 -69 25 -24 25 -25 -25 -26 -24 -25 19 -74 c10 -40 20 -74 22 -75 2 -2 34 -11 71 -21 68 -17 68 -17 91 4 28 27 41 27 60 -1 l16 -22 74 18 74 17 20 72 20 72 -26 28 -26 27 27 28 26 27 -16 65 c-9 36 -19 68 -23 73 -3 4 -37 16 -75 27 l-69 20 -26 -25 -26 -25 -24 25 c-13 14 -26 25 -29 24 -3 0 -34 -8 -68 -17z m77 -47 c11 -13 9 -20 -11 -41 l-24 -26 -28 34 -28 33 23 7 c38 10 55 9 68 -7z m156 5 l27 -11 -29 -30 -28 -29 -25 24 c-20 21 -22 27 -11 40 15 19 29 20 66 6z m-243 -68 l27 -28 -25 -24 c-23 -22 -27 -22 -41 -8 -11 11 -14 25 -9 52 4 20 10 36 14 36 4 0 19 -13 34 -28z m316 -40 c1 -32 -26 -39 -52 -14 l-21 22 29 30 30 31 6 -23 c4 -13 7 -33 8 -46z m-159 -17 l-24 -26 -25 25 -25 25 24 26 24 26 25 -25 25 -25 -24 -26z m-75 -31 c16 -25 16 -27 -4 -47 l-21 -21 -25 24 -25 24 22 23 c27 29 32 29 53 -3z m150 -43 l-25 -25 -22 22 -22 22 24 25 24 25 23 -22 24 -22 -26 -25z m-228 -33 l23 -22 -27 -28 c-15 -15 -30 -28 -34 -28 -15 0 -22 70 -9 85 16 20 19 19 47 -7z m148 -47 l-26 -26 -19 25 c-19 25 -19 25 2 48 l22 22 23 -22 24 -22 -26 -25z m154 55 c12 -14 6 -86 -7 -86 -3 0 -19 12 -34 27 l-28 27 22 23 c25 27 31 28 47 9z m-224 -86 c18 -20 18 -21 -1 -39 -15 -15 -25 -17 -53 -9 l-34 9 29 30 c33 35 36 35 59 9z m159 -9 l28 -29 -38 -11 c-31 -9 -41 -8 -56 6 -18 16 -18 17 4 40 27 29 29 29 62 -6z"/>
+                                                    <path d="M550 240 c0 -83 1 -90 20 -90 16 0 20 7 20 30 0 26 4 30 28 30 35 0 62 27 62 62 0 38 -29 58 -83 58 l-47 0 0 -90z m85 30 c0 -8 -10 -16 -22 -18 -18 -3 -23 2 -23 18 0 16 5 21 23 18 12 -2 22 -10 22 -18z"/>
+                                                    <path d="M710 240 l0 -90 50 0 c43 0 50 3 50 20 0 15 -7 20 -25 20 -24 0 -25 2 -25 70 0 68 -1 70 -25 70 -25 0 -25 -1 -25 -90z"/>
+                                                    <path d="M866 253 c-16 -43 -31 -84 -33 -90 -3 -8 3 -13 16 -13 12 0 24 7 27 15 4 9 19 15 40 15 24 0 34 -5 34 -15 0 -9 10 -15 26 -15 29 0 29 0 -15 108 -39 96 -58 95 -95 -5z m63 -30 c1 -7 -6 -13 -14 -13 -17 0 -18 4 -8 39 6 23 7 23 14 5 4 -10 8 -25 8 -31z"/>
+                                                    <path d="M1030 240 c0 -83 1 -90 20 -90 19 0 20 7 20 90 0 83 -1 90 -20 90 -19 0 -20 -7 -20 -90z"/>
+                                                    <path d="M1110 240 l0 -90 46 0 c37 0 51 5 75 29 32 33 37 67 14 110 -17 34 -33 41 -91 41 l-44 0 0 -90z m101 24 c12 -33 -11 -74 -41 -74 -17 0 -20 7 -20 50 0 47 2 50 25 50 18 0 28 -7 36 -26z"/>
                                                 </g>
                                             </svg>
                                         </span>
@@ -280,6 +296,21 @@
                                             </svg>
                                         </span>
                                     </label>
+                                    <label class="radio my-2">
+                                        <input class="radio__input" type="radio" name="coaching_application[coaching_application_merchant]" value="<?= PLAID ?>" required />
+                                        <span class="radio__label">
+                                            <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="120" height="60" viewBox="0 0 130 50" preserveAspectRatio="xMidYMid meet">
+                                                <g transform="translate(0.000000,48.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                    <path d="M113 462 c-34 -10 -64 -20 -68 -23 -3 -4 -14 -37 -25 -75 l-20 -69 25 -24 25 -25 -25 -26 -24 -25 19 -74 c10 -40 20 -74 22 -75 2 -2 34 -11 71 -21 68 -17 68 -17 91 4 28 27 41 27 60 -1 l16 -22 74 18 74 17 20 72 20 72 -26 28 -26 27 27 28 26 27 -16 65 c-9 36 -19 68 -23 73 -3 4 -37 16 -75 27 l-69 20 -26 -25 -26 -25 -24 25 c-13 14 -26 25 -29 24 -3 0 -34 -8 -68 -17z m77 -47 c11 -13 9 -20 -11 -41 l-24 -26 -28 34 -28 33 23 7 c38 10 55 9 68 -7z m156 5 l27 -11 -29 -30 -28 -29 -25 24 c-20 21 -22 27 -11 40 15 19 29 20 66 6z m-243 -68 l27 -28 -25 -24 c-23 -22 -27 -22 -41 -8 -11 11 -14 25 -9 52 4 20 10 36 14 36 4 0 19 -13 34 -28z m316 -40 c1 -32 -26 -39 -52 -14 l-21 22 29 30 30 31 6 -23 c4 -13 7 -33 8 -46z m-159 -17 l-24 -26 -25 25 -25 25 24 26 24 26 25 -25 25 -25 -24 -26z m-75 -31 c16 -25 16 -27 -4 -47 l-21 -21 -25 24 -25 24 22 23 c27 29 32 29 53 -3z m150 -43 l-25 -25 -22 22 -22 22 24 25 24 25 23 -22 24 -22 -26 -25z m-228 -33 l23 -22 -27 -28 c-15 -15 -30 -28 -34 -28 -15 0 -22 70 -9 85 16 20 19 19 47 -7z m148 -47 l-26 -26 -19 25 c-19 25 -19 25 2 48 l22 22 23 -22 24 -22 -26 -25z m154 55 c12 -14 6 -86 -7 -86 -3 0 -19 12 -34 27 l-28 27 22 23 c25 27 31 28 47 9z m-224 -86 c18 -20 18 -21 -1 -39 -15 -15 -25 -17 -53 -9 l-34 9 29 30 c33 35 36 35 59 9z m159 -9 l28 -29 -38 -11 c-31 -9 -41 -8 -56 6 -18 16 -18 17 4 40 27 29 29 29 62 -6z"/>
+                                                    <path d="M550 240 c0 -83 1 -90 20 -90 16 0 20 7 20 30 0 26 4 30 28 30 35 0 62 27 62 62 0 38 -29 58 -83 58 l-47 0 0 -90z m85 30 c0 -8 -10 -16 -22 -18 -18 -3 -23 2 -23 18 0 16 5 21 23 18 12 -2 22 -10 22 -18z"/>
+                                                    <path d="M710 240 l0 -90 50 0 c43 0 50 3 50 20 0 15 -7 20 -25 20 -24 0 -25 2 -25 70 0 68 -1 70 -25 70 -25 0 -25 -1 -25 -90z"/>
+                                                    <path d="M866 253 c-16 -43 -31 -84 -33 -90 -3 -8 3 -13 16 -13 12 0 24 7 27 15 4 9 19 15 40 15 24 0 34 -5 34 -15 0 -9 10 -15 26 -15 29 0 29 0 -15 108 -39 96 -58 95 -95 -5z m63 -30 c1 -7 -6 -13 -14 -13 -17 0 -18 4 -8 39 6 23 7 23 14 5 4 -10 8 -25 8 -31z"/>
+                                                    <path d="M1030 240 c0 -83 1 -90 20 -90 19 0 20 7 20 90 0 83 -1 90 -20 90 -19 0 -20 -7 -20 -90z"/>
+                                                    <path d="M1110 240 l0 -90 46 0 c37 0 51 5 75 29 32 33 37 67 14 110 -17 34 -33 41 -91 41 l-44 0 0 -90z m101 24 c12 -33 -11 -74 -41 -74 -17 0 -20 7 -20 50 0 47 2 50 25 50 18 0 28 -7 36 -26z"/>
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </label>
                                     <button type="submit" class="btn btn-custom" id="newPaymentFormBtn" data-html="Request new payment link">Request new payment link</button>
                                 </form>
                             <?php endif; ?>
@@ -294,10 +325,12 @@
 </div>
 
 <script src="https://www.paypal.com/sdk/js?client-id=<?= PAYPAL_CLIENTID ?>&currency=USD&intent=authorize&disable-funding=paylater,credit,card"></script>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 
 <script>
     $(document).ready(function() {
         $('#requestForm').on('submit', function(event) {
+
             event.preventDefault()
             if (!$(this)[0].checkValidity()) {
                 event.stopPropagation()
@@ -334,12 +367,99 @@
                 function(response) {
                     if (response.status) {
                         $('#requestBtn').html('Sent');
-                        setTimeout(function() {
-                            $('#requestDiv').html("<h4>Request participation</h4><p>The request has been sent!</p>");
-                            if (response.session_url) {
-                                location.href = response.session_url;
-                            }
-                        }, 1000);
+                        if(response.merchant == '<?= PLAID ?>') {
+                            const handler = Plaid.create({
+                                token: response.link_token,
+                                onSuccess: (public_token, metadata) => {
+                                    var data = {
+                                        '_token': $('meta[name=csrf-token]').attr("content"),
+                                        'link_token': response.link_token,
+                                        'public_token': public_token,
+                                        'link_session_id' : metadata.link_session_id,
+                                        'account_id': metadata.account_id,
+                                        'connection': 1,
+                                        'coaching_id': <?= $coaching['coaching_id'] ?>,
+                                    }
+                                    var url = '<?= l('dashboard/coaching/processPlaidTransfer') ?>';
+
+                                    new Promise((resolve, reject) => {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: url,
+                                            data: data,
+                                            dataType: 'JSON',
+                                            async: true,
+                                            success: function(response) {
+                                                resolve(response)
+                                            },
+                                            error: function(jqXHR, textStatus, errorThrown) {
+                                                toastr.error(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                                            }
+                                        });
+                                    }).then(
+                                        function(response) {
+                                            if (response.status) {
+                                                $.dialog({
+                                                    backgroundDismiss: true,
+                                                    title: '<?= __("Success!") ?>',
+                                                    content: response.message,
+                                                    onClose: function() {
+                                                        window.location.reload()
+                                                    }
+                                                });
+                                            } else {
+                                                $.dialog({
+                                                    backgroundDismiss: true,
+                                                    title: '<?= __("Error!") ?>',
+                                                    content: response.message,
+                                                    onClose: function() {
+                                                        // window.location.reload()
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    )
+                                },
+                                onLoad: () => {},
+                                onExit: (err, metadata) => {
+                                    console.log(err)
+                                    if (err) {
+                                        $.dialog({
+                                            backgroundDismiss: true,
+                                            title: '<?= __("Error!") ?>',
+                                            content: err.error_message,
+                                            onClose: function() {
+                                                window.location.reload()
+                                            }
+                                        });
+                                    }
+                                    console.log(metadata)
+                                    // Save data from the onExit handler
+                                    // handler.report({
+                                    //     error: error,
+                                    //     institution: metadata.institution,
+                                    //     link_session_id: metadata.link_session_id,
+                                    //     plaid_request_id: metadata.request_id,
+                                    //     status: metadata.status,
+                                    // });
+                                },
+                                onEvent: (eventName, metadata) => {
+                                    if(eventName == 'EXIT') {
+                                    }
+                                },
+                                // required for OAuth; if not using OAuth, set to null or omit:
+                                // receivedRedirectUri: window.location.href,
+                            });
+                            // Open Link
+                            handler.open();
+                        } else {
+                            setTimeout(function() {
+                                $('#requestDiv').html("<h4>Request participation</h4><p>The request has been sent!</p>");
+                                if (response.session_url) {
+                                    location.href = response.session_url;
+                                }
+                            }, 1000);
+                        }
                     } else {
                         toastr.error(response.txt);
                     }
@@ -347,7 +467,9 @@
             );
         });
 
-        $('#newPaymentForm').on('submit', function() {
+        $('#newPaymentForm').on('submit', function(e) {
+            event.preventDefault()
+
             new Promise((resolve, reject) => {
                 jQuery.ajax({
                     url: '<?= l('dashboard/coaching/saveApplication') ?>',
@@ -374,11 +496,97 @@
                 function(response) {
                     if (response.status) {
                         $('#newPaymentFormBtn').html('Sent');
-                        setTimeout(function() {
-                            if (response.session_url) {
-                                location.href = response.session_url;
-                            }
-                        }, 1000);
+                        if(response.merchant == '<?= PLAID ?>') {
+                            const handler = Plaid.create({
+                                token: response.link_token,
+                                onSuccess: (public_token, metadata) => {
+                                    var data = {
+                                        '_token': $('meta[name=csrf-token]').attr("content"),
+                                        'public_token': public_token,
+                                        'link_session_id' : metadata.link_session_id,
+                                        'account_id': metadata.account_id,
+                                        'connection': 1,
+                                        'coaching_id': <?= $coaching['coaching_id'] ?>,
+                                    }
+                                    var url = '<?= l('dashboard/coaching/processPlaidTransfer') ?>';
+
+                                    new Promise((resolve, reject) => {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: url,
+                                            data: data,
+                                            dataType: 'JSON',
+                                            async: true,
+                                            success: function(response) {
+                                                resolve(response)
+                                            },
+                                            error: function(jqXHR, textStatus, errorThrown) {
+                                                toastr.error(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                                            }
+                                        });
+                                    }).then(
+                                        function(response) {
+                                            if (response.status) {
+                                                $.dialog({
+                                                    backgroundDismiss: true,
+                                                    title: '<?= __("Success!") ?>',
+                                                    content: response.message,
+                                                    onClose: function() {
+                                                        location.href = response.redirect
+                                                    }
+                                                });
+                                            } else {
+                                                $.dialog({
+                                                    backgroundDismiss: true,
+                                                    title: '<?= __("Error!") ?>',
+                                                    content: response.message,
+                                                    onClose: function() {
+                                                        window.location.reload()
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    )
+                                },
+                                onLoad: () => {},
+                                onExit: (err, metadata) => {
+                                    console.log(err)
+                                    if (err) {
+                                        $.dialog({
+                                            backgroundDismiss: true,
+                                            title: '<?= __("Error!") ?>',
+                                            content: err.error_message,
+                                            onClose: function() {
+                                                window.location.reload()
+                                            }
+                                        });
+                                    }
+                                    console.log(metadata)
+                                    // Save data from the onExit handler
+                                    // handler.report({
+                                    //     error: error,
+                                    //     institution: metadata.institution,
+                                    //     link_session_id: metadata.link_session_id,
+                                    //     plaid_request_id: metadata.request_id,
+                                    //     status: metadata.status,
+                                    // });
+                                },
+                                onEvent: (eventName, metadata) => {
+                                    if(eventName == 'EXIT') {
+                                    }
+                                },
+                                // required for OAuth; if not using OAuth, set to null or omit:
+                                // receivedRedirectUri: window.location.href,
+                            });
+                            // Open Link
+                            handler.open();
+                        } else {
+                            setTimeout(function() {
+                                if (response.session_url) {
+                                    location.href = response.session_url;
+                                }
+                            }, 1000);
+                        }
                     } else {
                         toastr.error(response.txt);
                     }

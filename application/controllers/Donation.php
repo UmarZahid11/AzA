@@ -194,7 +194,7 @@ class Donation extends MY_Controller
                             if ($account_id) {
                                 
                                 //
-                                $transfer_authorization = $this->createTransferAuthorization($account_id, number_format($donationParam['donation_amount'], 2));
+                                $transfer_authorization = $this->createTransferAuthorization($this->plaid_token->access_token, $account_id, number_format($donationParam['donation_amount'], 2));
                                 if ($transfer_authorization && property_exists($transfer_authorization, 'authorization')) {
                                     if ($transfer_authorization->authorization && property_exists($transfer_authorization->authorization, 'id')) {
                                         $authorization_id = $transfer_authorization->authorization->id;
@@ -205,7 +205,7 @@ class Donation extends MY_Controller
 
                                 //
                                 if ($authorization_id) {
-                                    $transfer = $this->createPlaidTransfer($account_id, $authorization_id, strip_string($productName, 10));
+                                    $transfer = $this->createPlaidTransfer($this->plaid_token->access_token, $account_id, $authorization_id, strip_string($productName, 10));
                                     if ($transfer && property_exists($transfer, 'transfer')) {
                                         if ($transfer->transfer && property_exists($transfer->transfer, 'id')) {
                                             $transfer_id = $transfer->transfer->id;
@@ -438,23 +438,6 @@ class Donation extends MY_Controller
         $this->load_view('result', $data);
     }
 
-    /**
-     * Method getPlaidAccount
-     *
-     * @return ?object
-     */
-    function getPlaidAccount()
-    {
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-        $postArray = array(
-            "client_id" => PLAID_CLIENT_ID,
-            "secret" => PLAID_CLIENT_SECRET,
-            "access_token" => $this->plaid_token->access_token
-        );
-        $url = PLAID_API_URL . PLAID_GET_ACCOUNTS;
-        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
-    }
 
     /**
      * Method getPlaidTransfer
@@ -473,23 +456,6 @@ class Donation extends MY_Controller
         return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
     }
     
-    /**
-     * Method getPlaidTransferList
-     *
-     * @return ?object
-     */
-    function getPlaidTransferList() {
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-        $postArray = array(
-            "client_id" => PLAID_CLIENT_ID,
-            "secret" => PLAID_CLIENT_SECRET,
-        );
-        $url = PLAID_API_URL . PLAID_GET_TRANSFER_EVENT_LIST;
-        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
-    }
-
-
     /**
      * simulatePlaidTransfer function
      *
@@ -593,76 +559,41 @@ class Donation extends MY_Controller
                             } catch (Exception $e) {
                                 log_message('ERROR', $e->getMessage());
                             }
+                        } else {
+
+                            $data['coaching_application'] = $this->model_coaching_application->find_one(
+                                array(
+                                    'where' => array(
+                                        'coaching_application_checkout_session_id' => $transfer_event->transfer_id,
+                                        // 'coaching_application_status' => 0
+                                    )
+                                )
+                            );
+                            if($data['coaching_application']) {
+                                $this->model_coaching_application->update_by_pk(
+                                    $data['coaching_application']['coaching_application_id'],
+                                    array(
+                                        'coaching_application_status' => STATUS_ACTIVE,
+                                        'coaching_application_payment_status' => STATUS_ACTIVE
+                                    )
+                                );
+                                
+                                $this->model_order->update_model(
+                                    array('where' => array(
+                                        'order_session_checkout_id' => $transfer_event->transfer_id
+                                    )),
+                                    array(
+                                        'order_status' => STATUS_ACTIVE,
+                                        'order_payment_status' => STATUS_ACTIVE,
+                                        'order_status_message' => 'Completed',
+                                        'order_payment_comments' => 'Paid',
+                                    )
+                                );
+                            }
                         }
                     }
                 }
             }
         }
-    }
-
-    /**
-     * createTransferAuthorization function
-     *
-     * @param string $account_id
-     * @param integer $amount
-     * @return ?object
-     */
-    function createTransferAuthorization($account_id = '', $amount = 0)
-    {
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-
-        $postArray = array(
-            "client_id" => PLAID_CLIENT_ID,
-            "secret" => PLAID_CLIENT_SECRET,
-            "access_token" => $this->plaid_token->access_token,
-            "account_id" => $account_id,
-            "type" => "credit",
-            "network" => "ach",
-            "amount" => $amount,
-            "ach_class" => "web",
-            "user" => array(
-                "legal_name" => $this->model_signup->profileName($this->user_data, FALSE),
-                "email_address" => $this->user_data['signup_email'],
-                "phone_number" => $this->user_data['signup_phone'],
-                "address" => array(
-                    "street" => $this->user_data['signup_address'],
-                    "city" => $this->user_data['signup_city'],
-                    "region" => $this->user_data['signup_state'],
-                    "postal_code" => $this->user_data['signup_zip'],
-                    "country" => $this->user_data['signup_country']
-                )
-            ),
-            "device" => array(
-                "ip_address" => $_SERVER['REMOTE_ADDR'],
-                "user_agent" => $_SERVER['HTTP_USER_AGENT']
-            )
-        );
-        $url = PLAID_API_URL . PLAID_TRANSFER_AUTHORIZATION;
-        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
-    }
-
-    /**
-     * createPlaidTransfer function
-     *
-     * @param string $account_id
-     * @param string $authorization_id
-     * @param string $description
-     * @return ?object
-     */
-    function createPlaidTransfer($account_id = '', $authorization_id = '', $description = '')
-    {
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-        $postArray = array(
-            "client_id" => PLAID_CLIENT_ID,
-            "secret" => PLAID_CLIENT_SECRET,
-            "access_token" => $this->plaid_token->access_token,
-            "account_id" => $account_id,
-            "authorization_id" => $authorization_id,
-            "description" => $description
-        );
-        $url = PLAID_API_URL . PLAID_CREATE_TRANSFER;
-        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
     }
 }

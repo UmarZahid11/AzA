@@ -217,7 +217,7 @@ class Coaching extends MY_Controller
                         }
 
                         $session = '';
-                        $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
+                        $json_param['merchant'] = $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
 
                         //
                         $userApplication = $this->model_coaching_application->getUserApplication((int) $coaching_application['coaching_application_signup_id'], (int) $coaching_application['coaching_application_coaching_id']);
@@ -249,6 +249,10 @@ class Coaching extends MY_Controller
                                                     }
                                                 }
                                                 break;
+                                            case PLAID:
+                                                $json_param['link_token'] = $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->link_token : '';
+                                                break;
+                                            default:
                                         }
                                     }
                                 } else {
@@ -340,6 +344,10 @@ class Coaching extends MY_Controller
                                                 }
                                             }
                                             break;
+                                        case PLAID:
+                                            $json_param['link_token'] = $coaching_application['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $session ? $session->link_token : '';
+                                            break;
+                                        default:
                                     }
                                 }
                             }
@@ -405,6 +413,8 @@ class Coaching extends MY_Controller
      */
     private function checkoutSessionSetup(array $coaching, int $coaching_cost, string $merchant = STRIPE)
     {
+        global $config;
+
         $session = NULL;
 
         try {
@@ -473,6 +483,28 @@ class Coaching extends MY_Controller
                     $response = $this->curlRequest($url, $headers, $body, TRUE);
                     $session = json_decode($response);
                     break;
+                case PLAID:
+                    $postArray = array(
+                        "client_id" => PLAID_CLIENT_ID,
+                        "secret" => PLAID_CLIENT_SECRET,
+                        "user" => array(
+                            "client_user_id" => PLAID_CLIENT_PREFIX . time() . '-' . $this->userid,
+                        ),
+                        "client_name" => $config['title'],
+                        "products" => [PLAID_TYPE_AUTH],
+                        "country_codes" => ['US'],
+                        "language" => "en",
+                        // "link_customization_name" => 'transfer_ui'
+                    );
+                    $url = PLAID_API_URL . PLAID_CREATE_LINK_TOKEN;
+                        
+                    $headers = array();
+                    $headers[] = 'Content-Type: application/json';
+
+                    //
+                    $response = $this->curlRequest($url, $headers, $postArray, TRUE);
+                    $session = json_decode($response);
+                    break;
             }
             return $session;
         } catch (\Exception $e) {
@@ -480,6 +512,108 @@ class Coaching extends MY_Controller
             log_message('ERROR', $e->getMessage());
         }
         return NULL;
+    }
+
+    /**
+     * processPlaidTransfer function
+     *
+     * @return void
+     */
+    function processPlaidTransfer() {
+
+        $json_param['status'] = FALSE;
+        $json_param['redirect'] = '';
+
+        if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
+            $postArray = array(
+                "client_id" => PLAID_CLIENT_ID,
+                "secret" => PLAID_CLIENT_SECRET,
+                "public_token" => $_POST['public_token']
+            );
+
+            $url = PLAID_API_URL . PLAID_PUBLIC_TOKEN_EXCHANGE;
+
+            $headers = array();
+            $headers[] = 'Content-Type: application/json';
+
+            //
+            $response = $this->curlRequest($url, $headers, $postArray, TRUE);
+            $decoded_response = json_decode($response);
+
+            if (!$decoded_response) {
+                $json_param['message'] = __(ERROR_MESSAGE);
+                $json_param['status'] = FALSE;
+            } else {
+                if (isset($decoded_response->error_type) && null !== $decoded_response->error_type) {
+                    $json_param['message'] = isset($decoded_response->error_message) ? $decoded_response->error_message : 'Error';
+                } else {
+
+                    $access_token = $decoded_response->access_token;
+                    $account_id = isset($_POST['account_id']) && $_POST['account_id'] ? $_POST['account_id'] : '';
+                    
+                    $coaching = $this->model_coaching->find_by_pk($_POST['coaching_id']);
+                    $coaching_cost = $coaching['coaching_cost'];
+
+                    $current_role_coaching_cost = $this->model_coaching_cost->find_one_active(
+                        array(
+                            'where' => array(
+                                'coaching_cost_coaching_id' => $coaching['coaching_id'],
+                                'coaching_cost_membership_id' => $this->user_data['signup_type'],
+                            )
+                        )
+                    );
+
+                    if ($current_role_coaching_cost) {
+                        $coaching_cost = $current_role_coaching_cost['coaching_cost_value'];
+                    }
+
+                    $transferAuth = $this->createTransferAuthorization($access_token, $account_id, number_format((float) $coaching_cost, 2));
+
+                    if(isset($transferAuth->authorization) && $transferAuth->authorization->decision == 'declined') {
+                        $json_param['message'] = $transferAuth->authorization->decision_rationale->description;
+                    } else {
+                        $authorization_id = $transferAuth->authorization->id;
+                        $transfer = $this->createPlaidTransfer($access_token, $account_id, $authorization_id, strip_string($coaching['coaching_title'], 10));
+
+                        if ($transfer && property_exists($transfer, 'transfer')) {
+                            if ($transfer->transfer && property_exists($transfer->transfer, 'id')) {
+                                
+                                $updateParam['coaching_application_checkout_session_id'] = $orderParam['order_session_checkout_id'] = $transfer->transfer->id;
+                                $updateParam['coaching_application_checkout_session_response'] = $orderParam['order_response'] = serialize($transfer);
+
+                                $this->model_coaching_application->update_model(
+                                    array(
+                                        'where' => array(
+                                            'coaching_application_checkout_session_id' => $_POST['link_token'],
+                                            'coaching_application_signup_id' => $this->userid,
+                                            'coaching_application_coaching_id' => $coaching['coaching_id'],
+                                        )
+                                    ),
+                                    $updateParam
+                                );
+                                $this->model_order->update_model(
+                                    array(
+                                        'where' => array(
+                                            'order_user_id' => $this->userid,
+                                            'order_session_checkout_id' => $_POST['link_token']
+                                        )
+                                    ),
+                                    $orderParam
+                                );
+                                
+                                $json_param['status'] = TRUE;
+                                $json_param['txt'] = SUCCESS_MESSAGE;
+                            }
+                        } else if(property_exists($transfer, 'error_message')) {
+                            $json_param['txt'] = $transfer->error_message;
+                        }
+                    }
+                }
+            }
+        } else {
+            $json_param['message'] = ERROR_MESSAGE_LINK_EXPIRED;
+        }
+        echo json_encode($json_param);
     }
 
     /**

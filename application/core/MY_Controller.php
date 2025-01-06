@@ -1795,4 +1795,108 @@ class MY_Controller extends MY_Controller_Admin
     }
 
     /* ======================== PAYPAL ======================== */
+
+    /* ======================== PLAID ======================== */
+
+    /**
+     * Method getPlaidAccount
+     *
+     * @return ?object
+     */
+    function getPlaidAccount()
+    {
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $postArray = array(
+            "client_id" => PLAID_CLIENT_ID,
+            "secret" => PLAID_CLIENT_SECRET,
+            "access_token" => $this->plaid_token->access_token
+        );
+        $url = PLAID_API_URL . PLAID_GET_ACCOUNTS;
+        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
+    }
+
+    /**
+     * createTransferAuthorization function
+     *
+     * @param string $account_id
+     * @param integer $amount
+     * @return ?object
+     */
+    function createTransferAuthorization($access_token = '', $account_id = '', $amount = 0)
+    {
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+
+        $postArray = array(
+            "client_id" => PLAID_CLIENT_ID,
+            "secret" => PLAID_CLIENT_SECRET,
+            "access_token" => $access_token,
+            "account_id" => $account_id,
+            "type" => "credit",
+            "network" => "ach",
+            "amount" => $amount,
+            "ach_class" => "web",
+            "user" => array(
+                "legal_name" => $this->model_signup->profileName($this->user_data, FALSE),
+                "email_address" => $this->user_data['signup_email'],
+                "phone_number" => $this->user_data['signup_phone'],
+                "address" => array(
+                    "street" => $this->user_data['signup_address'],
+                    "city" => $this->user_data['signup_city'],
+                    "region" => $this->user_data['signup_state'],
+                    "postal_code" => $this->user_data['signup_zip'],
+                    "country" => $this->user_data['signup_country']
+                )
+            ),
+            "device" => array(
+                "ip_address" => $_SERVER['REMOTE_ADDR'],
+                "user_agent" => $_SERVER['HTTP_USER_AGENT']
+            )
+        );
+        $url = PLAID_API_URL . PLAID_TRANSFER_AUTHORIZATION;
+        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
+    }
+
+    /**
+     * createPlaidTransfer function
+     *
+     * @param string $account_id
+     * @param string $authorization_id
+     * @param string $description
+     * @return ?object
+     */
+    function createPlaidTransfer($access_token = '', $account_id = '', $authorization_id = '', $description = '')
+    {
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $postArray = array(
+            "client_id" => PLAID_CLIENT_ID,
+            "secret" => PLAID_CLIENT_SECRET,
+            "access_token" => $access_token,
+            "account_id" => $account_id,
+            "authorization_id" => $authorization_id,
+            "description" => $description
+        );
+        $url = PLAID_API_URL . PLAID_CREATE_TRANSFER;
+        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
+    }
+
+    /**
+     * Method getPlaidTransferList
+     *
+     * @return ?object
+     */
+    function getPlaidTransferList() {
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $postArray = array(
+            "client_id" => PLAID_CLIENT_ID,
+            "secret" => PLAID_CLIENT_SECRET,
+        );
+        $url = PLAID_API_URL . PLAID_GET_TRANSFER_EVENT_LIST;
+        return json_decode($this->curlRequest($url, $headers, $postArray, TRUE));
+    }
+
+    /* ======================== PLAID ======================== */
 }
