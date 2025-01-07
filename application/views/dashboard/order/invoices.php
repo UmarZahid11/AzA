@@ -60,6 +60,8 @@
                                 <?php $amount = $decoded_response->amount; ?>
                             <?php elseif($decoded_response && isset($decoded_response->plan->amount)) : ?>
                                 <?php $amount = $decoded_response->plan->amount; ?>
+                            <?php else: ?>
+                                <?php $amount = $invoice['order_total']; ?>
                             <?php endif; ?>
 
                             <td><?= is_int($amount) && $amount > 0 ? price($amount / 100) : price($amount) ?></td>
@@ -152,12 +154,16 @@
                                 <?php $amount = $decoded_response->plan->amount; ?>
                             <?php elseif($decoded_response && isset($decoded_response->purchase_units) && $decoded_response->purchase_units[0]->amount->value) : ?>
                                 <?php $amount = $decoded_response->purchase_units[0]->amount->value; ?>
+                            <?php else: ?>
+                                <?php $amount = $invoice['order_total']; ?>
                             <?php endif; ?>
 
                             <td><?= is_int($amount) && $amount > 0 ? price($amount / 100) : price($amount) ?></td>
 
                             <?php if($decoded_response && isset($decoded_response->status)) : ?>
                                 <?php $status = $decoded_response->status; ?>
+                            <?php else: ?>
+                                <?php $status = $invoice['order_status_message']; ?>
                             <?php endif; ?>
                             <td><?= ucfirst($status) ?></td>
 
@@ -167,6 +173,8 @@
                                 <?php $created = $decoded_response->created; ?>
                             <?php elseif($decoded_response && isset($decoded_response->create_time)) : ?>
                                 <?php $created = strtotime($decoded_response->create_time); ?>
+                            <?php else: ?>
+                                <?php $created = strtotime($invoice['order_createdon']); ?>
                             <?php endif; ?>
                             <td><?= $created ? date('d M, Y h:i a', ($created)) : 'Not available.' ?></td>
 

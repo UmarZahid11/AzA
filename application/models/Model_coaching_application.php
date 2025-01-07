@@ -134,9 +134,9 @@ class Model_coaching_application extends MY_Model
             'type_filter_dt' => 'dropdown',
             'list_data_key' => "news_status",
             'list_data' => array(
-                0 => "<span class='label label-danger'>Pending</span>",
-                1 => "<span class='label label-primary'>Accepted</span>",
-                2 => "<span class='label label-primary'>Rejected</span>"
+                STATUS_INACTIVE => "<span class='label label-danger'>Pending</span>",
+                STATUS_ACTIVE => "<span class='label label-primary'>Accepted</span>",
+                STATUS_REJECTED => "<span class='label label-red'>Rejected</span>"
             ),
             'default' => '0',
             'attributes' => array(),
