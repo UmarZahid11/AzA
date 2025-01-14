@@ -44,18 +44,18 @@
                 async: true,
                 dataType: "json",
                 success: function(response) {
-                    resolve(response)
+                    resolve(response);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
                 },
                 beforeSend: function() {
-                    $('#login-submit').attr('disabled', true)
-                    $('#login-submit').html('<img src="<?= g('images_root') . 'tail-spin.svg' ?>" width="20" />')
+                    $('#login-submit').attr('disabled', true);
+                    $('#login-submit').html('<img src="<?= g('images_root') . 'tail-spin.svg' ?>" width="20" />');
                 },
                 complete: function() {
-                    $('#login-submit').attr('disabled', false)
-                    $('#login-submit').html('Login')
+                    $('#login-submit').attr('disabled', false);
+                    $('#login-submit').html('Login');
                 }
             })
 		})
@@ -151,10 +151,11 @@
                         } else if (response.redirect_url) {
                             location.assign(response.redirect_url);
                         } else {
-                            location.reload()
+                            location.reload();
                         }
                     } else {
                         AdminToastr.error(response.txt ?? '<?= ERROR_MESSAGE ?>');
+                        grecaptcha.reset();
                     }                
                 }
             );

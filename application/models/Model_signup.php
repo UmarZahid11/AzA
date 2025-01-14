@@ -90,6 +90,30 @@ class Model_signup extends MY_Model
     }
 
     /**
+     * getUserRole function
+     *
+     * @param integer $user_id
+     * @return array
+     */
+    function getUserRole(int $user_id = 0) {
+        return $this->model_membership->find_one_active(
+            array(
+                'fields' => 'membership.*',
+                'where' => array(
+                    'signup_id' => $user_id
+                ),
+                'joins' => array(
+                    0 => array(
+                        'table' => 'signup',
+                        'joint' => 'signup.signup_type = membership.membership_id',
+                        'type' => 'both'            
+                    )
+                )
+            )
+        );
+    }
+
+    /**
      * Method getRoleId
      *
      * @param string $type

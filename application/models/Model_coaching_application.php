@@ -71,6 +71,23 @@ class Model_coaching_application extends MY_Model
         return [];
     }
 
+    /**
+     * getTotalApplicationsByUser function
+     *
+     * @param integer $signup_id
+     * @return int
+     */
+    function getTotalApplicationsByUser(int $signup_id = 0) {
+        $coaching_count = $this->find_count_active(
+            array(
+                'where' => array(
+                    'coaching_application_signup_id' => $signup_id,
+                )
+            )
+        );
+        return $coaching_count;
+    }
+
     /*
     * table       Table Name
     * Name        FIeld Name

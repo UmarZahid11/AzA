@@ -42,6 +42,22 @@ class Model_membership extends MY_Model
     }
 
     /**
+     * coachingLimit function
+     *
+     * @param int $userid
+     * @return void
+     */
+    function coachingLimit(int $userid = 0) {
+        $membership_coaching_limit = 0;
+
+        $user_role = $this->model_signup->getUserRole($userid);
+        if($user_role && isset($user_role['membership_coaching_limit'])) {
+            $membership_coaching_limit = (int) $user_role['membership_coaching_limit'];
+        }        
+        return (int) $membership_coaching_limit;
+    }
+
+    /**
      * isCurrentMembership function
      *
      * @param integer $membership_id
@@ -284,6 +300,18 @@ class Model_membership extends MY_Model
                 'table'   => $this->_table,
                 'name'   => 'membership_custom_description',
                 'label'   => 'Custom interval description',
+                'type'   => 'text',
+                'type_dt'   => 'text',
+                'attributes'   => array(),
+                'dt_attributes'   => array("width" => "5%"),
+                'js_rules'   => '',
+                'rules'   => 'trim'
+            ),
+
+            'membership_coaching_limit' => array(
+                'table'   => $this->_table,
+                'name'   => 'membership_coaching_limit',
+                'label'   => 'Free Coaching Limit',
                 'type'   => 'text',
                 'type_dt'   => 'text',
                 'attributes'   => array(),

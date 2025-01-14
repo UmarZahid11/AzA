@@ -140,20 +140,14 @@ class Coaching extends MY_Controller
                 error_404();
             }
 
-            $data['coaching_cost'] = $data['coaching']['coaching_cost'];
+            $data['user_role'] = $this->model_signup->getUserRole($this->userid);
+            $data['membership_coaching_limit'] = $this->model_membership->coachingLimit($this->userid);
 
-            $current_role_coaching_cost = $this->model_coaching_cost->find_one_active(
-                array(
-                    'where' => array(
-                        'coaching_cost_coaching_id' => $data['coaching']['coaching_id'],
-                        'coaching_cost_membership_id' => $this->user_data['signup_type'],
-                    )
-                )
-            );
+            //
+            $data['user_application'] = $this->model_coaching_application->getUserApplication($this->userid, (int) $data['coaching']['coaching_id']); 
+            $data['user_total_applications'] = $this->model_coaching_application->getTotalApplicationsByUser($this->userid); 
 
-            if ($current_role_coaching_cost) {
-                $data['coaching_cost'] = $current_role_coaching_cost['coaching_cost_value'];
-            }
+            $data['coaching_cost'] = $this->getCoachingCost($data['coaching']);
 
             //
             $data['coaching_recording'] = NULL;
@@ -173,6 +167,39 @@ class Coaching extends MY_Controller
         } else {
             error_404();
         }
+    }
+
+    /**
+     * getCoachingCost function
+     *
+     * @param array $coaching
+     * @return int
+     */
+    function getCoachingCost(array $coaching = []) {
+
+        $coaching_cost = $coaching['coaching_cost'];
+
+        $membership_coaching_limit = $this->model_membership->coachingLimit($this->userid);
+        $user_total_applications = $this->model_coaching_application->getTotalApplicationsByUser($this->userid); 
+
+        if((int) $user_total_applications < (int) $membership_coaching_limit) {
+            $coaching_cost = 0;
+        } else {
+            $current_role_coaching_cost = $this->model_coaching_cost->find_one_active(
+                array(
+                    'where' => array(
+                        'coaching_cost_coaching_id' => $coaching['coaching_id'],
+                        'coaching_cost_membership_id' => $this->user_data['signup_type'],
+                    )
+                )
+            );
+
+            if ($current_role_coaching_cost) {
+                $coaching_cost = $current_role_coaching_cost['coaching_cost_value'];
+            }
+        }
+
+        return (int) $coaching_cost;
     }
 
     /**
@@ -201,20 +228,8 @@ class Coaching extends MY_Controller
 
                     if ($coaching) {
 
-                        $coaching_cost = $coaching['coaching_cost'];
-
-                        $current_role_coaching_cost = $this->model_coaching_cost->find_one_active(
-                            array(
-                                'where' => array(
-                                    'coaching_cost_coaching_id' => $coaching['coaching_id'],
-                                    'coaching_cost_membership_id' => $this->user_data['signup_type'],
-                                )
-                            )
-                        );
-
-                        if ($current_role_coaching_cost) {
-                            $coaching_cost = $current_role_coaching_cost['coaching_cost_value'];
-                        }
+                        //
+                        $coaching_cost = $this->getCoachingCost($coaching);
 
                         $session = '';
                         $json_param['merchant'] = $merchant = isset($coaching_application['coaching_application_merchant']) && $coaching_application['coaching_application_merchant'] ? $coaching_application['coaching_application_merchant'] : 'STRIPE';
@@ -839,11 +854,11 @@ class Coaching extends MY_Controller
                                 );
                             }
                         } else {
-                            $this->model_email->generalOrderInvoice($order['order_id']);
+                            $this->model_email->generalOrderInvoice((int) $order['order_id']);
                         }
                         break;
                     case PAYPAL:
-                        $this->model_email->generalOrderInvoice($order['order_id']);
+                        $this->model_email->generalOrderInvoice((int) $order['order_id']);
                         break;
                 }
             }

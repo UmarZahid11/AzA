@@ -1,8 +1,13 @@
-<?php $user_application = $this->model_coaching_application->getUserApplication($this->userid, $coaching['coaching_id']); ?>
-
 <div class="dashboard-content posted-theme">
     <i class="fa fa-desktop"></i>
-    <h4><a href="<?= l('dashboard/coaching') ?>"><i class="fa fa-arrow-left"></i></a> <?= __('Coaching details') . ' ' . (isset($coaching['coaching_title']) ? 'for "' . $coaching['coaching_title'] . '"' : '') ?></h4>
+    <h4>
+        <?= __('Coaching details') . ' ' . (isset($coaching['coaching_title']) ? 'for "' . $coaching['coaching_title'] . '"' : '') ?>
+    </h4>
+    <?php if($membership_coaching_limit) : ?>
+        <hr />
+        <span><?= 'Free Coaching Limit: ' . $membership_coaching_limit ?> <?= isset($user_role['membership_title']) ? ('(' . $user_role['membership_title'] . ')') : '' ?></span> <br />
+        <span><?= 'Coaching Availed: ' . (isset($user_total_applications) ? $user_total_applications : NA) ?></span>
+    <?php endif; ?>
 
     <hr />
 
@@ -73,7 +78,7 @@
 
                 <?php $json_decoded = json_decode($coaching['coaching_response']); ?>
 
-                <li>Created on: <?= date('Y-m-d H:i:s', strtotime($coaching['coaching_createdon'])) ?></li>
+                <li>Created on: <?= date('d M, Y h:i a', strtotime($coaching['coaching_createdon'])) ?></li>
 
                 <?php if ($this->model_signup->hasRole(ROLE_0) || ($user_application && $user_application['coaching_application_status'] == STATUS_ACTIVE)) : ?>
                     <li>Coaching recording:
@@ -187,8 +192,8 @@
                                     type="submit"
                                     id="requestBtn"
                                     class="btn btn-custom w-100"
-                                    data-html="<?= (isset($coaching_cost) && $coaching_cost > 0) ? 'Pay for participation' : 'Request participation' ?>">
-                                    <?= (isset($coaching_cost) && $coaching_cost > 0) ? 'Pay for participation' : 'Request participation' ?>
+                                    data-html="<?= (isset($coaching_cost) && $coaching_cost > 0) ? ('Pay ' . price($coaching_cost) . ' for participation') : 'Request participation' ?>">
+                                    <?= (isset($coaching_cost) && $coaching_cost > 0) ? ('Pay ' . price($coaching_cost) . ' for participation') : 'Request participation' ?>
                                 </button>
                             </div>
                         </div>
@@ -234,7 +239,7 @@
                                     ?>
                                 </strong>
                             </p>
-                            <?php if ($user_application['coaching_application_payment_status'] == 0) : ?>
+                            <?php if ($user_application['coaching_application_payment_status'] == 0 && $user_application['coaching_application_status'] == 0) : ?>
                                 <?php
                                     $session = '';
                                     $session_url = '';
