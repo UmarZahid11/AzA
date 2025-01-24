@@ -33,7 +33,7 @@ class Stripe extends MY_Controller
         $endpoint_secret = STRIPE_ENDPOINT_SECRET;
 
         $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $sig_header = isset($_SERVER['HTTP_STRIPE_SIGNATURE']) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : '';
         $event = null;
 
         log_message('ERROR', 'Stripe webhook: payload: ' . serialize($payload));

@@ -39,8 +39,6 @@ Class Fileupload_helper {
 
 		$destination = $params['destination_path'] .$filename ;
 
-		//chmod($destination_path, 0777);
-
 		if(!is_dir($params['destination_path'])) {
 			return array( 'error' => "ERROR: Folder not found:" . $destination_path );
 		} elseif(!is_writable($params['destination_path'])) {

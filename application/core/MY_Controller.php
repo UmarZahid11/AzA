@@ -1,8 +1,10 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ini_set('display_errors', constant("DISPLAY_ERRORS"));
+ini_set('display_startup_errors', constant("DISPLAY_ERRORS"));
+if(constant("DISPLAY_ERRORS")) {
+    error_reporting(E_ALL);
+}
 
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
