@@ -2,7 +2,7 @@
     <div class="float-right d-flex">
         <a href="javascript:;" class="btn btn-custom">Add Board</a>
     </div>
-    <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" width="20" />
+    <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" style="width:20px;" />
     <h4>Monday</h4>
     <hr />
 
@@ -18,6 +18,7 @@
                                     class="card-img-top" 
                                     src="..." 
                                     alt="Card image cap"
+                                    style="width:100%"
                                 />
                                 <div class="card-body">
                                     <h5 

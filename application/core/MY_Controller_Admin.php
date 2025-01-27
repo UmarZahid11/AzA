@@ -114,50 +114,57 @@ class MY_Controller_Admin extends CI_Controller
 	 */
 	public function index()
 	{
+		$model_obj = '';
 		$class_name = $this->router->class;
 		$model_name = "model_" . $class_name;
 
-		$model_obj = $this->$model_name;
+		if (file_exists(APPPATH . "models/$model_name.php")) {
+			$model_obj = $this->$model_name;
+		}
 
-		$this->layout_data['bread_crumbs'] = array(
-			array(
-				"home/" => "Home",
-				$class_name => humanize($class_name)
-			)
-		);
+		if ($model_obj) {
+			$this->layout_data['bread_crumbs'] = array(
+				array(
+					"home/" => "Home",
+					$class_name => humanize($class_name)
+				)
+			);
 
-		$this->register_plugins(array(
-			"jquery-ui",
-			"bootstrap",
-			"bootstrap-hover-dropdown",
-			"jquery-slimscroll",
-			"uniform",
-			"bootstrap-switch",
-			"bootstrap-datepicker",
-			"boots",
-			"font-awesome",
-			"simple-line-icons",
-			"select2",
-			"datatables",
-			"bootbox",
-			"bootstrap-toastr",
+			$this->register_plugins(array(
+				"jquery-ui",
+				"bootstrap",
+				"bootstrap-hover-dropdown",
+				"jquery-slimscroll",
+				"uniform",
+				"bootstrap-switch",
+				"bootstrap-datepicker",
+				"boots",
+				"font-awesome",
+				"simple-line-icons",
+				"select2",
+				"datatables",
+				"bootbox",
+				"bootstrap-toastr",
 
-		));
+			));
 
-		$this->add_script("pages/tasks.css");
-		$this->add_script(array("table-ajax.js", "datatable.js"), "js");
+			$this->add_script("pages/tasks.css");
+			$this->add_script(array("table-ajax.js", "datatable.js"), "js");
 
-		$data['page_title_min'] = "Management";
-		$data['page_title'] = $class_name;
-		$data['class_name'] = $class_name;
-		$data['model_name'] = $model_name;
-		$data['model_obj'] = $model_obj;
-		$data['model_fields'] = $model_obj->get_fields();
-		$data['dt_params'] = $this->dt_params;
+			$data['page_title_min'] = "Management";
+			$data['page_title'] = $class_name;
+			$data['class_name'] = $class_name;
+			$data['model_name'] = $model_name;
+			$data['model_obj'] = $model_obj;
+			$data['model_fields'] = $model_obj->get_fields();
+			$data['dt_params'] = $this->dt_params;
 
-		$data['model'] = "$model_name";
-		$this->before_index_render($data);
-		$this->load_view("datatable", $data);
+			$data['model'] = "$model_name";
+			$this->before_index_render($data);
+			$this->load_view("datatable", $data);
+		} else {
+			error_404();
+		}
 	}
 
 	/* ======================== CSRF START ======================== */
@@ -371,11 +378,11 @@ class MY_Controller_Admin extends CI_Controller
 				foreach ($row as $field => $value) {
 
 					$value = mysqli_real_escape_string($this->get_mysqli(), $value);
-                    if($field == 'fundraising_title') {
-                        if($value == '') {
-                            $value = 'AzAverze';
-                        }
-                    }
+					if ($field == 'fundraising_title') {
+						if ($value == '') {
+							$value = 'AzAverze';
+						}
+					}
 					$field_attr = $model_fields[$field];
 					$field_type = (isset($field_attr['type_dt'])) ? $field_attr['type_dt'] : $field_attr['type'];
 
@@ -388,11 +395,11 @@ class MY_Controller_Admin extends CI_Controller
 					}
 
 					switch ($field_type) {
-					    case 'date':
+						case 'date':
 							$value = date('d M, Y h:i a', strtotime($value));
-					        break;
+							break;
 						case 'url':
-							$value = '<a href="'.$value.'" target="_blank">Go</a>';
+							$value = '<a href="' . $value . '" target="_blank">Go</a>';
 							break;
 						case 'text':
 						case 'textarea':
@@ -503,13 +510,13 @@ class MY_Controller_Admin extends CI_Controller
 							$type = '';
 
 							if (
-								(isset($itemDetail['signup_type'])) 
+								(isset($itemDetail['signup_type']))
 							) {
 								$type = $itemDetail['signup_type'] == ROLE_1 ? 'consumer' : ($itemDetail['signup_type'] == ROLE_3 ? 'premium' : '');
 							}
 
-							if($type && (($itemDetail['signup_type'] == ROLE_1 && $itemDetail['signup_trial_expiry'] != '') || ($itemDetail['signup_type'] == ROLE_3 && $itemDetail['signup_subscription_status'] == SUBSCRIPTION_TRIAL && $itemDetail['signup_trial_expiry'] != ''))) {
-								$extend_trial_button = '<button class="btn-sm btn btn-dark extendTrialBtn" data-type="'.$type.'" id="extendTrialBtn' . $itemId . ' " data-id="' . $itemId . '" data-toggle="tooltip" data-placement="top" title="Extend free trial"><i class="fa fa-calendar"></i></button>';
+							if ($type && (($itemDetail['signup_type'] == ROLE_1 && $itemDetail['signup_trial_expiry'] != '') || ($itemDetail['signup_type'] == ROLE_3 && $itemDetail['signup_subscription_status'] == SUBSCRIPTION_TRIAL && $itemDetail['signup_trial_expiry'] != ''))) {
+								$extend_trial_button = '<button class="btn-sm btn btn-dark extendTrialBtn" data-type="' . $type . '" id="extendTrialBtn' . $itemId . ' " data-id="' . $itemId . '" data-toggle="tooltip" data-placement="top" title="Extend free trial"><i class="fa fa-calendar"></i></button>';
 							}
 						}
 					}
@@ -519,9 +526,9 @@ class MY_Controller_Admin extends CI_Controller
 					// if controller has extra buttons
 					if (array_filled($dt_params['action']['extra'])) {
 						foreach ($dt_params['action']['extra'] as $btn) {
-							if(isset($btn['type']) && $btn['type'] == 'application') {
+							if (isset($btn['type']) && $btn['type'] == 'application') {
 								$job_application = $this->model_job_application->find_by_pk($itemId);
-								if($job_application) {
+								if ($job_application) {
 									$extra_buttons .= '<a title="View application details" datat-toggle="tooltip" href="' . $config['base_url'] . 'dashboard/application/detail/' . JWT::encode($itemId) . '/' . $job_application['job_application_job_id'] . '" class="btn-sm btn btn-primary"><i class="icon-doc"></i></a>';
 								}
 							} else {

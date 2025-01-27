@@ -50,8 +50,15 @@ class Monday extends MY_Controller
 
         // create access token
         $response = $this->curlRequest(MONDAY_TOKEN_URL . '?' . http_build_query($post_fields), $headers, [], TRUE);
-        $decoded_response = json_decode($response);
-        
-        debug($decoded_response);
+        $decoded_response = json_decode($response, true);
+        $this->session->set_userdata('monday', $decoded_response);
+
+        if(isset($decoded_response['access_token']) && $decoded_response['access_token']) {
+            $this->session->set_flashdata('success', __('Authentication successfull!'));
+            $this->session->has_userdata('monday_intended') ? redirect($this->session->userdata('monday_intended')) : redirect(l('dashboard/monday/listing'));
+        } else {
+            $this->session->set_flashdata('error', __('Authentication failed!'));
+            redirect(l('dashboard'));
+        }
     }
 }

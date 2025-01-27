@@ -1,8 +1,8 @@
 <div class="dashboard-content posted-theme">
-    <!-- <div class="float-right d-flex">
-        <a href="javascript:;" class="btn btn-custom">Add Board</a>
-    </div> -->
-    <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" width="20" />
+    <!--<div class="float-right d-flex">-->
+    <!--    <a href="javascript:;" class="btn btn-custom">Add Board</a>-->
+    <!--</div>-->
+    <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" style="width:20px;" />
     <h4><?= $boardDetail['data']['boards'][0]['name'] ?></h4>
     <hr />
 
