@@ -21,11 +21,14 @@ $site_host = $_SERVER['HTTP_HOST'];
 
 if ($site_host == "localhost") {
 	define('ENVIRONMENT', 'development');
+	define('DISPLAY_ERRORS', 1);
 // } elseif (strstr($site_host, "stagging")) {
 } elseif (strstr($_SERVER['REQUEST_URI'], "stagging")) {
 	define('ENVIRONMENT', 'testing');
+	define('DISPLAY_ERRORS', 1);
 } else {
 	define('ENVIRONMENT', 'production');
+	define('DISPLAY_ERRORS', 0);
 }
 
 

@@ -54,22 +54,4 @@ class Monday extends MY_Controller
         
         debug($decoded_response);
     }
-
-    function getBoards() {
-        $token = MONDAY_ACCESS_TOKEN;
-        $apiUrl = MONDAY_API_URL;
-        $headers = ['Content-Type: application/json', 'Authorization: ' . $token];
-
-        $query = '{ boards { id name } }';
-        $data = @file_get_contents($apiUrl, false, stream_context_create([
-            'http' => [
-                'method' => 'POST',
-                'header' => $headers,
-                'content' => json_encode(['query' => $query]),
-            ]
-        ]));
-        $responseContent = json_decode($data, true);
-
-        debug($responseContent);
-    }
 }

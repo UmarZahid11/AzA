@@ -1,8 +1,8 @@
 <?php
 
-ini_set('display_errors', constant("DISPLAY_ERRORS"));
-ini_set('display_startup_errors', constant("DISPLAY_ERRORS"));
-if(constant("DISPLAY_ERRORS")) {
+ini_set('display_errors', DISPLAY_ERRORS);
+ini_set('display_startup_errors', DISPLAY_ERRORS);
+if(DISPLAY_ERRORS) {
     error_reporting(E_ALL);
 }
 
