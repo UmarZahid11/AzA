@@ -741,7 +741,7 @@ class Product extends MY_Controller
         $subscription_error = FALSE;
         $subscription = '';
 
-        // if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
+        if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
             if ($this->model_signup->hasPremiumPermission()) {
                 if ((isset($this->user_data['signup_company_phone']) && $this->user_data['signup_company_phone'])) {
                     if (isset($_POST) && isset($_POST['product'])) {
@@ -796,10 +796,10 @@ class Product extends MY_Controller
 
                                 // charge for technology
                                 if (isset($_POST['stripeToken']) && g('db.admin.enable_technology_listing_subscription') && g('db.admin.technology_listing_subscription_fee')) {
-                                    $customer = $this->createStripeResource('customers', [
+                                    $customer = $this->model_stripe_log->createStripeResource('customers', [
                                         'source' => $_POST['stripeToken'],
                                     ]);
-                                    $product = $this->createStripeResource('products', [
+                                    $product = $this->model_stripe_log->createStripeResource('products', [
                                         'name' => $affectProduct['product_name'],
                                     ]);
                                     $interval = (isset($affectProduct['product_subscription_interval']) && $affectProduct['product_subscription_interval'] ? $affectProduct['product_subscription_interval'] : 1);
@@ -819,7 +819,7 @@ class Product extends MY_Controller
                                     }
 
                                     //
-                                    $price = $this->createStripeResource('prices', [
+                                    $price = $this->model_stripe_log->createStripeResource('prices', [
                                         'unit_amount' => $technology_listing_subscription_fee * 100,
                                         'currency' => DEFAULT_CURRENCY_CODE,
                                         'product' => $product->id,
@@ -829,7 +829,7 @@ class Product extends MY_Controller
                                         ),
                                     ]);
 
-                                    $subscription = $this->createStripeResource('subscriptions', [
+                                    $subscription = $this->model_stripe_log->createStripeResource('subscriptions', [
                                         'customer' => $customer->id,
                                         'cancel_at' => $cancel_at,
                                         'items' => [
@@ -986,9 +986,9 @@ class Product extends MY_Controller
             } else {
                 $json_param['txt'] = __(ERROR_MESSAGE_INSUFFICIENT_PRIVILEGE);
             }
-        // } else {
-            // $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
-        // }
+        } else {
+            $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
+        }
         echo json_encode($json_param);
     }
 
@@ -1238,7 +1238,7 @@ class Product extends MY_Controller
 
                                                     try {
                                                         // charge now transfer on completion of the request
-                                                        $charge = $this->createStripeResource(
+                                                        $charge = $this->model_stripe_log->createStripeResource(
                                                             'charges',
                                                             [
                                                                 "amount" => $total,
@@ -1356,7 +1356,7 @@ class Product extends MY_Controller
 
                                                 foreach ($order_items as $order_item) {
                                                     try {
-                                                        $transfer_data = $this->createStripeResource('transfers', [
+                                                        $transfer_data = $this->model_stripe_log->createStripeResource('transfers', [
                                                             "amount" => $order_item['order_item_payment_due'] * 100,
                                                             "currency" => DEFAULT_CURRENCY_CODE,
                                                             "destination" => $order_item['signup_account_id'],

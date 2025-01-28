@@ -134,7 +134,7 @@ class Signup extends MY_Controller
 
                     $setupIntents = '';
                     try {
-                        $customer = $this->createStripeResource(
+                        $customer = $this->model_stripe_log->createStripeResource(
                             'customers',
                             [
                                 "email" => $inserted_param['signup_email'],
@@ -142,7 +142,7 @@ class Signup extends MY_Controller
                         );
     
                         if($customer && $customer->id) {
-                            $setupIntents = $this->createStripeResource(
+                            $setupIntents = $this->model_stripe_log->createStripeResource(
                                 'setupIntents',
                                 [
                                     'payment_method_types' => ['card'],

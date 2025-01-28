@@ -935,7 +935,7 @@ class Order extends MY_Controller
                                 $total = intval($order['order_total']) * 100;
 
                                 try {
-                                    $charge = $this->createStripeResource(
+                                    $charge = $this->model_stripe_log->createStripeResource(
                                         'charges',
                                         [
                                             "amount" => $total,
@@ -1027,7 +1027,7 @@ class Order extends MY_Controller
 
                                         foreach ($order_items as $value) {
                                             try {
-                                                $transfer_data = $this->createStripeResource('transfers', [
+                                                $transfer_data = $this->model_stripe_log->createStripeResource('transfers', [
                                                     "amount" => $value['order_item_payment_due'] * 100,
                                                     "currency" => DEFAULT_CURRENCY_CODE,
                                                     "destination" => $value['signup_account_id'],

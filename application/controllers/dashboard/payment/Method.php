@@ -88,7 +88,7 @@ class Method extends MY_Controller
                 $session = $this->createSession(TRUE);
             }
         } else {
-            $customer = $this->createStripeResource('customers', [
+            $customer = $this->model_stripe_log->createStripeResource('customers', [
                 'email' => $this->user_data['signup_email']
             ]);
             if($customer && $customer->id) {

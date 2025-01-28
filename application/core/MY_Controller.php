@@ -1503,34 +1503,6 @@ class MY_Controller extends MY_Controller_Admin
         return $resourceDetail;
     }
 
-    /**
-     * Method createStripeResource
-     *
-     * @param string $resourceType
-     * @param array $resourcePayload
-     * @param bool $debug
-     *
-     * @return object
-     */
-    function createStripeResource(string $resourceType = '', array $resourcePayload = [], bool $debug = FALSE): ?object
-    {
-        $resourceDetail = NULL;
-        if($resourceType) {
-            try {
-                $resourceDetail = $this->stripe->{$resourceType}->create($resourcePayload);
-            } catch (\Exception $e) {
-                log_message('ERROR', $e->getMessage());
-            }
-
-            if ($debug) {
-                echo '<pre>';
-                print_r($resourceDetail);
-                echo '</pre>';
-            }
-        }
-        return $resourceDetail;
-    }
-
     /* ======================== STRIPE ======================== */
 
     /* ======================== ESCROW ======================== */

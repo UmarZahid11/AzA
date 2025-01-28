@@ -28,7 +28,7 @@
                                     >
                                         <?= strip_string($boardData['name'], 18); ?>
                                     </h5>
-                                    <a href="<?= l('dashboard/monday/board/' . $boardData['id']) ?>" class="btn btn-primary">View detail</a>
+                                    <a href="<?= l('dashboard/monday/groups/' . $boardData['id']) ?>" class="btn btn-primary">View detail</a>
                                 </div>
                             </div>
                         </div>

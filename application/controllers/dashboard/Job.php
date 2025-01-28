@@ -468,7 +468,7 @@ class Job extends MY_Controller
         $subscribed = FALSE;
         $subscription = '';
 
-        // if (isset($_REQUEST['_token']) && $this->verify_csrf_token($_REQUEST['_token'])) {
+        if (isset($_REQUEST['_token']) && $this->verify_csrf_token($_REQUEST['_token'])) {
             if ($this->model_signup->hasPremiumPermission()) {
                 if ((isset($_POST['stripeToken']) && g('db.admin.enable_job_listing_subscription')) || (!g('db.admin.enable_job_listing_subscription')) || (isset($_POST['job_id']) && intVal($_POST['job_id']) > 0)) {
 
@@ -507,10 +507,10 @@ class Job extends MY_Controller
                             if (empty($jobDetail)) {
                                 // subscribe
                                 if (isset($_POST['stripeToken']) && g('db.admin.enable_job_listing_subscription') && g('db.admin.job_listing_subscription_fee')) {
-                                    $customer = $this->createStripeResource('customers', [
+                                    $customer = $this->model_stripe_log->createStripeResource('customers', [
                                         'source' => $_POST['stripeToken'],
                                     ]);
-                                    $product = $this->createStripeResource('products', [
+                                    $product = $this->model_stripe_log->createStripeResource('products', [
                                         'name' => $affectJob['job_title'],
                                     ]);
                                     //
@@ -532,7 +532,7 @@ class Job extends MY_Controller
                                     }
                                     
                                     //
-                                    $price = $this->createStripeResource('prices', [
+                                    $price = $this->model_stripe_log->createStripeResource('prices', [
                                         'unit_amount' => $job_listing_subscription_fee * 100,
                                         'currency' => DEFAULT_CURRENCY_CODE,
                                         'product' => $product->id,
@@ -543,7 +543,7 @@ class Job extends MY_Controller
                                         ),
                                     ]);
 
-                                    $subscription = $this->createStripeResource('subscriptions', [
+                                    $subscription = $this->model_stripe_log->createStripeResource('subscriptions', [
                                         'customer' => $customer->id,
                                         'cancel_at' => $cancel_at,
                                         'items' => [
@@ -760,9 +760,9 @@ class Job extends MY_Controller
             } else {
                 $json_param['txt'] = __(ERROR_MESSAGE_INSUFFICIENT_PRIVILEGE);
             }
-        // } else {
-        //     $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
-        // }
+        } else {
+            $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
+        }
         echo json_encode($json_param);
     }
 

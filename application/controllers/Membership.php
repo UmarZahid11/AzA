@@ -279,10 +279,10 @@ class Membership extends MY_Controller
                                     break;
                             }
             
-                            $product = $this->createStripeResource('products', [
+                            $product = $this->model_stripe_log->createStripeResource('products', [
                                 'name' => $product_title
                             ]);
-                            $price = $this->createStripeResource('prices', [
+                            $price = $this->model_stripe_log->createStripeResource('prices', [
                                 'unit_amount' => $membershipCost * 100,
                                 'currency' => DEFAULT_CURRENCY_CODE,
                                 'product' => $product->id,
@@ -828,7 +828,7 @@ class Membership extends MY_Controller
 
         if(!empty($membership)) {
             try {
-                $customer = $this->createStripeResource('customers', [
+                $customer = $this->model_stripe_log->createStripeResource('customers', [
                     'email' => $this->user_data['signup_email']
                 ]);
                 switch($membership['membership_id']) {
@@ -843,10 +843,10 @@ class Membership extends MY_Controller
                         break;
                 }
 
-                $product = $this->createStripeResource('products', [
+                $product = $this->model_stripe_log->createStripeResource('products', [
                     'name' => $product_title
                 ]);
-                $price = $this->createStripeResource('prices', [
+                $price = $this->model_stripe_log->createStripeResource('prices', [
                     'unit_amount' => $membershipCost * 100,
                     'currency' => DEFAULT_CURRENCY_CODE,
                     'product' => $product->id,

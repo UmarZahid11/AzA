@@ -207,20 +207,20 @@ class Signup_promotion extends MY_Controller
             $customer = $this->resource('customers', $signup['signup_customer_id']);
             if(!$customer) {
                 //
-                $customer = $this->createStripeResource('customers', [
+                $customer = $this->model_stripe_log->createStripeResource('customers', [
                     'email' => $signup['signup_email']
                 ]);
             }
         } else {
             //
-            $customer = $this->createStripeResource('customers', [
+            $customer = $this->model_stripe_log->createStripeResource('customers', [
                 'email' => $signup['signup_email']
             ]);
         }
-        $product = $this->createStripeResource('products', [
+        $product = $this->model_stripe_log->createStripeResource('products', [
             'name' => $post[$class_name]['signup_promotion_title'],
         ]);
-        $price = $this->createStripeResource('prices', [
+        $price = $this->model_stripe_log->createStripeResource('prices', [
             'unit_amount' => $post[$class_name]['signup_promotion_price'] * 100,
             'currency' => DEFAULT_CURRENCY_CODE,
             'product' => $product->id,

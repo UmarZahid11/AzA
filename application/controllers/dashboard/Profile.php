@@ -1785,10 +1785,10 @@ class Profile extends MY_Controller
                         $subscription = $this->resource('subscriptions', $this->user_data['signup_subscription_id']);
 
                         if(isset($subscription->items) && isset($subscription->items->data) && $subscription->items->data[0]->id) {
-                            $product = $this->createStripeResource('products', [
+                            $product = $this->model_stripe_log->createStripeResource('products', [
                                 'name' => $promotion['signup_promotion_title'],
                             ]);
-                            $price = $this->createStripeResource('prices', [
+                            $price = $this->model_stripe_log->createStripeResource('prices', [
                                 'unit_amount' => $promotion['signup_promotion_price'] * 100,
                                 'currency' => DEFAULT_CURRENCY_CODE,
                                 'product' => $product->id,

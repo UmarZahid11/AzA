@@ -24,11 +24,11 @@ class Monday extends MY_Controller
     }
 
     /**
-     * listing function
+     * boards function
      *
      * @return void
      */
-    function listing() {
+    function boards() {
         $data = [];
 
         $data['boards'] = $this->get('{ boards { id name } }');
@@ -36,7 +36,7 @@ class Monday extends MY_Controller
         //
         $this->layout_data['title'] = 'Monday | ' . $this->layout_data['title'];
         //
-        $this->load_view('listing', $data);
+        $this->load_view('boards', $data);
     }
 
     /**
@@ -45,7 +45,7 @@ class Monday extends MY_Controller
      * @param integer $board_id
      * @return void
      */
-    function board(int $board_id = 0) {
+    function groups(int $board_id = 0) {
         $data = [];
 
         $data['boardDetail'] = $this->get('query { boards (ids: ' . $board_id . ') { id name } }');
@@ -60,7 +60,7 @@ class Monday extends MY_Controller
         //
         $this->layout_data['title'] = 'Monday boards | ' . $this->layout_data['title'];
         //
-        $this->load_view('board', $data);       
+        $this->load_view('groups', $data);       
     }
 
     /**
@@ -69,7 +69,7 @@ class Monday extends MY_Controller
      * @param strng $group_id
      * @return void
      */
-    function group(int $board_id = 0, string $group_id = '') {
+    function items(int $board_id = 0, string $group_id = '') {
         $data = [];
 
         $data['group_id'] = $group_id;
@@ -92,7 +92,7 @@ class Monday extends MY_Controller
         }
 
         $data['boardColumns'] = $this->get('query {boards(ids: ' . $board_id . ') {columns {id title}}}');
-        $data['boardItems'] = $this->get('{ boards (ids:  ' . $board_id . ') {  items_page { cursor items { id name state url group { id title } subitems { id name state url group { id title } } } } } }');
+        $data['boardItems'] = $this->get('{ boards (ids:  ' . $board_id . ') {  items_page { cursor items { id name state url column_values { id text } group  { id title } } } } }');
 
         //
         $this->layout_data['title'] = 'Monday items | ' . $this->layout_data['title'];

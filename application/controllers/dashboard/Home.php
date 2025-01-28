@@ -147,7 +147,7 @@ class Home extends MY_Controller
                         //
                         if (!$this->user_data['signup_is_stripe_connected']) {
                             if (!$accountId) {
-                                $data['stripe_account'] = $this->createStripeResource('accounts', [
+                                $data['stripe_account'] = $this->model_stripe_log->createStripeResource('accounts', [
                                     'type' => 'custom',
                                     'country' => DEFAULT_COUNTRY_CODE,
                                     'email' => $this->user_data['signup_email'],
@@ -161,7 +161,7 @@ class Home extends MY_Controller
                             }
                             //
                             if ($accountId) {
-                                $data['stripe_account_links'] = $this->createStripeResource(
+                                $data['stripe_account_links'] = $this->model_stripe_log->createStripeResource(
                                     'accountLinks',
                                     [
                                         'account' => $accountId,
@@ -177,7 +177,7 @@ class Home extends MY_Controller
                             $affect_param['signup_account_response'] = $data['stripe_account'];
                         } else {
                             if ($accountId) {
-                                $data['stripe_account_links'] = $this->createStripeResource(
+                                $data['stripe_account_links'] = $this->model_stripe_log->createStripeResource(
                                     'accountLinks',
                                     [
                                         'account' => $accountId,

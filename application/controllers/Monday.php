@@ -55,7 +55,7 @@ class Monday extends MY_Controller
 
         if(isset($decoded_response['access_token']) && $decoded_response['access_token']) {
             $this->session->set_flashdata('success', __('Authentication successfull!'));
-            $this->session->has_userdata('monday_intended') ? redirect($this->session->userdata('monday_intended')) : redirect(l('dashboard/monday/listing'));
+            $this->session->has_userdata('monday_intended') ? redirect($this->session->userdata('monday_intended')) : redirect(l('dashboard/monday/boards'));
         } else {
             $this->session->set_flashdata('error', __('Authentication failed!'));
             redirect(l('dashboard'));

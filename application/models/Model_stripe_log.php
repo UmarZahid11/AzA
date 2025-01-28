@@ -26,6 +26,35 @@ class Model_stripe_log extends MY_Model
     }
 
     /**
+     * Method createStripeResource
+     *
+     * @param string $resourceType
+     * @param array $resourcePayload
+     * @param bool $debug
+     *
+     * @return object
+     */
+    function createStripeResource(string $resourceType = '', array $resourcePayload = [], bool $debug = FALSE): ?object
+    {
+        $stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
+        $resourceDetail = NULL;
+        if($resourceType) {
+            try {
+                $resourceDetail = $stripe->{$resourceType}->create($resourcePayload);
+            } catch (\Exception $e) {
+                log_message('ERROR', $e->getMessage());
+            }
+
+            if ($debug) {
+                echo '<pre>';
+                print_r($resourceDetail);
+                echo '</pre>';
+            }
+        }
+        return $resourceDetail;
+    }
+
+    /**
      * Method get_fields
      *
      * @param string $specific_field

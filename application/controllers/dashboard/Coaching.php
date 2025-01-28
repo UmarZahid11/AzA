@@ -435,14 +435,14 @@ class Coaching extends MY_Controller
         try {
             switch($merchant) {
                 case STRIPE:
-                    $customer = $this->createStripeResource('customers', [
+                    $customer = $this->model_stripe_log->createStripeResource('customers', [
                         'email' => $this->user_data['signup_email']
                     ]);
                     //
-                    $product = $this->createStripeResource('products', [
+                    $product = $this->model_stripe_log->createStripeResource('products', [
                         'name' => $coaching['coaching_title']
                     ]);
-                    $price = $this->createStripeResource('prices', [
+                    $price = $this->model_stripe_log->createStripeResource('prices', [
                         'unit_amount' => $coaching_cost * 100,
                         'currency' => DEFAULT_CURRENCY_CODE,
                         'product' => $product->id,

@@ -82,7 +82,7 @@ if (!$userdata) {
                 <span><?= __('Banking: Plaid') ?></span>
             </a>
     
-            <a href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? l('dashboard/monday/listing') : 'javascript:;'; ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? '' : ERROR_MESSAGE_SUBSCRIPTION; ?>">
+            <a href="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? l('dashboard/monday/boards') : 'javascript:;'; ?>" data-toggle="tooltip" data-bs-placement="right" title="<?= ($this->userid > 0 && ($this->model_signup->hasPremiumPermission())) ? '' : ERROR_MESSAGE_SUBSCRIPTION; ?>">
                 <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" />
                 <span><?= __('Project management: Monday') ?></span>
             </a>

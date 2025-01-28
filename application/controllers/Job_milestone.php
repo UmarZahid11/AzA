@@ -305,7 +305,7 @@ class Job_milestone extends MY_Controller
 
                                     $token = $_POST['stripeToken'];
                                     try {
-                                        $charge = $this->createStripeResource('charges', [
+                                        $charge = $this->model_stripe_log->createStripeResource('charges', [
                                             'amount' => ((($amount + percent_amount($amount, STRIPE_FEE_PERECENTAGE)) * 100) + STRIPE_FEE_EXTRA_CENTS),
                                             'currency' => DEFAULT_CURRENCY_CODE,
                                             'description' => 'Milestone payment from: ' . $this->user_data['signup_email'] . ' to: ' . $job_milestone['signup_email'] . ' for job: ' . $job_milestone['job_title'],
@@ -509,7 +509,7 @@ class Job_milestone extends MY_Controller
 
                     if ($force_manual || ($calculated_date >= strtotime(date('Y-m-d H:i:s')))) {
                         try {
-                            $transfer_data = $this->createStripeResource('transfers', [
+                            $transfer_data = $this->model_stripe_log->createStripeResource('transfers', [
                                 "amount" => $value['job_milestone_payment_due'] * 100,
                                 "currency" => DEFAULT_CURRENCY_CODE,
                                 "destination" => $value['signup_account_id'],

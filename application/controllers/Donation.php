@@ -261,13 +261,13 @@ class Donation extends MY_Controller
     function setupStripeDonation(int $donationId = 0, float $donationAmount, string $donationEmail = '', $productName): ?object
     {
         try {
-            $customer = $this->createStripeResource('customers', [
+            $customer = $this->model_stripe_log->createStripeResource('customers', [
                 'email' => $donationEmail
             ]);
-            $product = $this->createStripeResource('products', [
+            $product = $this->model_stripe_log->createStripeResource('products', [
                 'name' => $productName,
             ]);
-            $price = $this->createStripeResource('prices', [
+            $price = $this->model_stripe_log->createStripeResource('prices', [
                 'unit_amount' => $donationAmount * 100,
                 'currency' => DEFAULT_CURRENCY_CODE,
                 'product' => $product->id

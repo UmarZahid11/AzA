@@ -17,12 +17,11 @@
                             >
                                 <?= ($group['title']); ?>
                             </h5>
-                            <a href="<?= l('dashboard/monday/group/' . $boardDetail['data']['boards'][0]['id'] . '/' . $group['id']) ?>" class="btn btn-primary">View detail</a>
+                            <a href="<?= l('dashboard/monday/items/' . $boardDetail['data']['boards'][0]['id'] . '/' . $group['id']) ?>" class="btn btn-primary">View detail</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
-
 </div>
