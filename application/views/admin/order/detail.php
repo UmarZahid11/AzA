@@ -167,7 +167,7 @@ switch ($order['order_reference_type']) {
     </div>
 </div>
 
-<? create_modal_html("address_update", "", "", 'method="POST" action="' . $config['base_url'] . 'admin/order/save_address"', false) ?>
+<? //create_modal_html("address_update", "", "", 'method="POST" action="' . $config['base_url'] . 'admin/order/save_address"', false) ?>
 
 <script>
     function print_div() {

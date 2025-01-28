@@ -68,16 +68,16 @@ class Stripe extends MY_Controller
      *
      * @return void
      */
-    function webhookManual(): void
-    {
-        $event = NULL;
+    // function webhookManual(): void
+    // {
+    //     $event = NULL;
 
-        $this->eventSwitch($event);
+    //     $this->eventSwitch($event);
 
-        log_message('ERROR', 'Stripe webhook: ' . 'Event details: ' . serialize($event));
+    //     log_message('ERROR', 'Stripe webhook: ' . 'Event details: ' . serialize($event));
 
-        http_response_code(200);
-    }
+    //     http_response_code(200);
+    // }
 
     /**
      * Method eventSwitch
@@ -612,25 +612,25 @@ class Stripe extends MY_Controller
      *
      * @return object
      */
-    function resource(string $resourceType, string $resourceId, bool $debug = TRUE): ?object
-    {
-        $resourceDetail = NULL;
-        try {
-            $resourceDetail = $this->stripe->{$resourceType}->retrieve(
-                $resourceId,
-                []
-            );
-        } catch (\Exception $e) {
-            log_message('ERROR', $e->getMessage());
-        }
+    // function resource(string $resourceType, string $resourceId, bool $debug = TRUE): ?object
+    // {
+    //     $resourceDetail = NULL;
+    //     try {
+    //         $resourceDetail = $this->stripe->{$resourceType}->retrieve(
+    //             $resourceId,
+    //             []
+    //         );
+    //     } catch (\Exception $e) {
+    //         log_message('ERROR', $e->getMessage());
+    //     }
 
-        if ($debug) {
-            echo '<pre>';
-            print_r($resourceDetail);
-            echo '</pre>';
-        }
-        return $resourceDetail;
-    }
+    //     if ($debug) {
+    //         echo '<pre>';
+    //         print_r($resourceDetail);
+    //         echo '</pre>';
+    //     }
+    //     return $resourceDetail;
+    // }
 
     // function endTrial($subscriptionId = 'sub_1O0lg1ASwfulAoL3KyXEI1lX') : void {
     //     try {

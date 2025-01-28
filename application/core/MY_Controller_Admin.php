@@ -118,7 +118,7 @@ class MY_Controller_Admin extends CI_Controller
 		$class_name = $this->router->class;
 		$model_name = "model_" . $class_name;
 
-		if (file_exists(APPPATH . "models/$model_name.php")) {
+		if (file_exists(APPPATH . "models/" . ucfirst($model_name) . ".php")) {
 			$model_obj = $this->$model_name;
 		}
 

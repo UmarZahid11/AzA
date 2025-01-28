@@ -25,7 +25,7 @@ if ($site_host == "localhost") {
 // } elseif (strstr($site_host, "stagging")) {
 } elseif (strstr($_SERVER['REQUEST_URI'], "stagging")) {
 	define('ENVIRONMENT', 'testing');
-	define('DISPLAY_ERRORS', 1);
+	define('DISPLAY_ERRORS', 0);
 } else {
 	define('ENVIRONMENT', 'production');
 	define('DISPLAY_ERRORS', 0);

@@ -1481,22 +1481,24 @@ class MY_Controller extends MY_Controller_Admin
      *
      * @return object
      */
-    function resource(string $resourceType, string $resourceId, bool $debug = FALSE): ?object
+    function resource(string $resourceType = '', string $resourceId = '', bool $debug = FALSE): ?object
     {
         $resourceDetail = NULL;
-        try {
-            $resourceDetail = $this->stripe->{$resourceType}->retrieve(
-                $resourceId,
-                []
-            );
-        } catch (\Exception $e) {
-            log_message('ERROR', $e->getMessage());
-        }
+        if($resourceType) {
+            try {
+                $resourceDetail = $this->stripe->{$resourceType}->retrieve(
+                    $resourceId,
+                    []
+                );
+            } catch (\Exception $e) {
+                log_message('ERROR', $e->getMessage());
+            }
 
-        if ($debug) {
-            echo '<pre>';
-            print_r($resourceDetail);
-            echo '</pre>';
+            // if ($debug) {
+            //     echo '<pre>';
+            //     print_r($resourceDetail);
+            //     echo '</pre>';
+            // }
         }
         return $resourceDetail;
     }
@@ -1510,19 +1512,21 @@ class MY_Controller extends MY_Controller_Admin
      *
      * @return object
      */
-    function createStripeResource(string $resourceType, array $resourcePayload, bool $debug = FALSE): ?object
+    function createStripeResource(string $resourceType = '', array $resourcePayload = [], bool $debug = FALSE): ?object
     {
         $resourceDetail = NULL;
-        try {
-            $resourceDetail = $this->stripe->{$resourceType}->create($resourcePayload);
-        } catch (\Exception $e) {
-            log_message('ERROR', $e->getMessage());
-        }
+        if($resourceType) {
+            try {
+                $resourceDetail = $this->stripe->{$resourceType}->create($resourcePayload);
+            } catch (\Exception $e) {
+                log_message('ERROR', $e->getMessage());
+            }
 
-        if ($debug) {
-            echo '<pre>';
-            print_r($resourceDetail);
-            echo '</pre>';
+            if ($debug) {
+                echo '<pre>';
+                print_r($resourceDetail);
+                echo '</pre>';
+            }
         }
         return $resourceDetail;
     }

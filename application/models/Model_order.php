@@ -216,7 +216,7 @@ class Model_order extends MY_Model
                     ORDER_REFERENCE_MEMBERSHIP => "<span class=\"label label-danger\">" . PRODUCT_REFERENCE_MEMBERSHIP . "</span>",
                     ORDER_REFERENCE_PRODUCT => "<span class=\"label label-primary\">" . PRODUCT_REFERENCE_PRODUCT . "</span>",
                     // ORDER_REFERENCE_TECHNOLOGY => "<span class=\"label label-primary\">" . PRODUCT_REFERENCE_TECHNOLOGY . "</span>",
-                    // ORDER_REFERENCE_SERVICE => "<span class=\"label label-primary\">" . PRODUCT_REFERENCE_SERVICE . "</span>",
+                    ORDER_REFERENCE_SERVICE => "<span class=\"label label-primary\">" . PRODUCT_REFERENCE_SERVICE . "</span>",
                     ORDER_REFERENCE_JOB => "<span class=\"label label-primary\">" . PRODUCT_REFERENCE_JOB . "</span>",
                     ORDER_REFERENCE_COACHING => "<span class=\"label label-danger\">" . PRODUCT_REFERENCE_COACHING . "</span>",
                 ),
