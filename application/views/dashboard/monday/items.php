@@ -27,9 +27,8 @@
                         <?php endif; ?>
                     </thead>
                     <tbody>
-                        <?php if(isset($boardItems) && isset($boardItems['data']['boards']) && !empty($boardItems['data']['boards'])) : ?>
-                            <?php foreach($boardItems['data']['boards'] as $items) : ?>
-                                <?php foreach($items['items_page']['items'] as $item) : ?>
+                        <?php if(isset($items) && !empty($items)) : ?>
+                                <?php foreach($items as $item) : ?>
                                     <?php if($item['group']['id'] == $group_id) : ?>
                                         <tr>
                                             <td><?= $item['name'] ?></td>
@@ -40,11 +39,15 @@
                                             <?php endforeach; ?>
                                         </tr>
                                     <?php endif; ?>
-                                <?php endforeach; ?>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>
+                <?php if(isset($items) && $items && $cursor) : ?>
+                    <div class="d-flex justify-content-center">
+                        <a href="<?= l('dashboard/monday/items/' . $board_id . '/' . $group_id . '/' . $limit . '/' . $cursor) ?>">Next</a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -69,10 +69,13 @@ class Monday extends MY_Controller
      * @param strng $group_id
      * @return void
      */
-    function items(int $board_id = 0, string $group_id = '') {
+    function items(int $board_id = 0, string $group_id = '', int $limit = 5, string $cursor = '') {
         $data = [];
 
+        $data['board_id'] = $board_id;
         $data['group_id'] = $group_id;
+        $data['limit'] = $limit;
+        $data['cursor'] = $cursor;
 
         $data['boardDetail'] = $this->get('query { boards (ids: ' . $board_id . ') { id name } }');
 
@@ -92,7 +95,19 @@ class Monday extends MY_Controller
         }
 
         $data['boardColumns'] = $this->get('query {boards(ids: ' . $board_id . ') {columns {id title}}}');
-        $data['boardItems'] = $this->get('{ boards (ids:  ' . $board_id . ') {  items_page { cursor items { id name state url column_values { id text } group  { id title } } } } }');
+
+        $data['items'] = [];
+        if(!$cursor) {
+            $boardItems = $this->get('{ boards (ids:  ' . $board_id . ') {  items_page(limit: ' . $limit . ') { cursor items { id name state url column_values { id text } group  { id title } } } } }');
+            if(isset($boardItems) && isset($boardItems['data']['boards']) && !empty($boardItems['data']['boards'])) {
+                $data['items'] = $boardItems['data']['boards'][0]['items_page']['items'];
+                $data['cursor'] = $boardItems['data']['boards'][0]['items_page']['cursor'];
+            }
+        } else {
+            $boardItems = $this->get('query { next_items_page(cursor: "' . $cursor . '", limit: ' . $limit . ') { cursor items { id name state url column_values { id text } group  { id title } } } }');
+            $data['items'] = $boardItems['data']['next_items_page']['items'];
+            $data['cursor'] = $boardItems['data']['next_items_page']['cursor'];
+        }
 
         //
         $this->layout_data['title'] = 'Monday items | ' . $this->layout_data['title'];
