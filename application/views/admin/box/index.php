@@ -121,9 +121,9 @@ global $config;
 <script>
     $(document).ready(function() {
         $('body').on('submit', '.deleteBoxUser', function(event) {
-            event.preventDefault()
+            event.preventDefault();
             if (!$(this)[0].checkValidity()) {
-                event.stopPropagation()
+                event.stopPropagation();
                 $(this).addClass('was-validated');
                 $(this).find(":invalid").first().focus();
                 return false;

@@ -1467,43 +1467,6 @@ class MY_Controller extends MY_Controller_Admin
         return $data;
     }
 
-    /* ======================== STRIPE ======================== */
-
-    /**
-     * Method resource - get stripe resource
-     * usage example:
-     * http://localhost/azaverze/stripe/resource/customers/cus_OGHPxGAXkojNkx
-     * http://localhost/azaverze/stripe/resource/invoices/in_1NTkr8ASwfulAoL3rW5CfmDJ
-     *
-     * @param string $resourceType
-     * @param string $resourceId
-     * @param bool $debug
-     *
-     * @return object
-     */
-    function resource(string $resourceType = '', string $resourceId = '', bool $debug = FALSE): ?object
-    {
-        $resourceDetail = NULL;
-        if($resourceType) {
-            try {
-                $resourceDetail = $this->stripe->{$resourceType}->retrieve(
-                    $resourceId,
-                    []
-                );
-            } catch (\Exception $e) {
-                log_message('ERROR', $e->getMessage());
-            }
-
-            if ($debug) {
-                echo '<pre>';
-                print_r($resourceDetail);
-                echo '</pre>';
-            }
-        }
-        return $resourceDetail;
-    }
-
-    /* ======================== STRIPE ======================== */
 
     /* ======================== ESCROW ======================== */
 
