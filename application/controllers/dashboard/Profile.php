@@ -633,7 +633,7 @@ class Profile extends MY_Controller
                         switch ($order['order_merchant']) {
                             case STRIPE:
                                 try {
-                                    $subscriptionDetails = $this->resource('subscriptions', $subscriptionId);
+                                    $subscriptionDetails = $this->model_stripe_log->resource('subscriptions', $subscriptionId);
                                 } catch (\Exception $e) {
                                     $error = true;
                                     $errorMessage = $e->getMessage();
@@ -1365,7 +1365,7 @@ class Profile extends MY_Controller
 
         if (isset($this->user_data['signup_membership_id']) && $this->user_data['signup_type'] != ROLE_1 && isset($this->user_data['signup_subscription_response']) && $this->user_data['signup_subscription_response']) {
             $signup_subscription_response = json_decode($this->user_data['signup_subscription_response']);
-            $data['signup_subscription_response'] = $this->resource('subscriptions', $signup_subscription_response->id);
+            $data['signup_subscription_response'] = $this->model_stripe_log->resource('subscriptions', $signup_subscription_response->id);
         }
 
         //
@@ -1410,7 +1410,7 @@ class Profile extends MY_Controller
                     switch ($order['order_merchant']) {
                         case STRIPE:
                             try {
-                                $subscriptionDetails = $this->resource('subscriptions', $subscriptionId);
+                                $subscriptionDetails = $this->model_stripe_log->resource('subscriptions', $subscriptionId);
                             } catch (\Exception $e) {
                                 $error = true;
                                 $errorMessage = $e->getMessage();
@@ -1605,7 +1605,7 @@ class Profile extends MY_Controller
                     switch ($order['order_merchant']) {
                         case STRIPE:
                             try {
-                                $subscriptionDetails = $this->resource('subscriptions', $subscriptionId);
+                                $subscriptionDetails = $this->model_stripe_log->resource('subscriptions', $subscriptionId);
                             } catch (\Exception $e) {
                                 $error = true;
                                 $errorMessage = $e->getMessage();
@@ -1782,7 +1782,7 @@ class Profile extends MY_Controller
 
                     if($promotion) {
 
-                        $subscription = $this->resource('subscriptions', $this->user_data['signup_subscription_id']);
+                        $subscription = $this->model_stripe_log->resource('subscriptions', $this->user_data['signup_subscription_id']);
 
                         if(isset($subscription->items) && isset($subscription->items->data) && $subscription->items->data[0]->id) {
                             $product = $this->model_stripe_log->createStripeResource('products', [

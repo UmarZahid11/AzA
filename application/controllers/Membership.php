@@ -254,7 +254,7 @@ class Membership extends MY_Controller
 
                 //
                 $previous_subscription = $this->user_data['signup_subscription_id'];
-                $previous_subscription_detail = $this->resource('subscriptions', $previous_subscription);
+                $previous_subscription_detail = $this->model_stripe_log->resource('subscriptions', $previous_subscription);
 
                 //
                 if($previous_subscription_detail && isset($previous_subscription_detail->plan) && $previous_subscription_detail->plan->active == 1) {
@@ -545,14 +545,14 @@ class Membership extends MY_Controller
                             []
                         );
             
-                        $data['customer'] = $this->resource('customers', $session->customer);
+                        $data['customer'] = $this->model_stripe_log->resource('customers', $session->customer);
                     } catch (\Exception $e) {
                         $error = TRUE;
                         $this->session->set_flashdata('stripe_error', $e->getMessage());
                     }
                     if ($data['customer'] && !$error) {
                         $customer = str_replace('Stripe\Customer JSON:', '', $data['customer']);
-                        $subscription = $this->resource('subscriptions', $session->subscription);
+                        $subscription = $this->model_stripe_log->resource('subscriptions', $session->subscription);
         
                         $subscriptionArray = array(
                             'signup_type' => $membershipId,

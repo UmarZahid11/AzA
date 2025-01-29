@@ -1494,11 +1494,11 @@ class MY_Controller extends MY_Controller_Admin
                 log_message('ERROR', $e->getMessage());
             }
 
-            // if ($debug) {
-            //     echo '<pre>';
-            //     print_r($resourceDetail);
-            //     echo '</pre>';
-            // }
+            if ($debug) {
+                echo '<pre>';
+                print_r($resourceDetail);
+                echo '</pre>';
+            }
         }
         return $resourceDetail;
     }

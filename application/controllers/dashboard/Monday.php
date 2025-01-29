@@ -69,13 +69,13 @@ class Monday extends MY_Controller
      * @param strng $group_id
      * @return void
      */
-    function items(int $board_id = 0, string $group_id = '', int $limit = 5, string $cursor = '') {
+    function items(int $board_id = 0, string $group_id = '', int $limit = 30, string $cursor = '') {
         $data = [];
 
         $data['board_id'] = $board_id;
         $data['group_id'] = $group_id;
         $data['limit'] = $limit;
-        $data['cursor'] = $cursor;
+        $data['cursor'] = '';
 
         $data['boardDetail'] = $this->get('query { boards (ids: ' . $board_id . ') { id name } }');
 

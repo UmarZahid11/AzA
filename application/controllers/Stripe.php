@@ -281,7 +281,7 @@ class Stripe extends MY_Controller
                 $object = $event->data->object;
                 //
                 if (property_exists($object, 'subscription') && $object->subscription) {
-                    $subscription_response = str_replace('Stripe\Subscription JSON:', '', (string) $this->resource('subscriptions', $object->subscription, FALSE));
+                    $subscription_response = str_replace('Stripe\Subscription JSON:', '', (string) $this->model_stripe_log->resource('subscriptions', $object->subscription, FALSE));
 
                     if ($subscription_response) {
                         $stripe_log = $this->getStripeLog(
@@ -408,7 +408,7 @@ class Stripe extends MY_Controller
                 );
 
                 if ($stripe_log) {
-                    $subscription_response = str_replace('Stripe\Subscription JSON:', '', (string) $this->resource('subscriptions', $object->id, FALSE));
+                    $subscription_response = str_replace('Stripe\Subscription JSON:', '', (string) $this->model_stripe_log->resource('subscriptions', $object->id, FALSE));
 
                     switch ($stripe_log['stripe_log_reference']) {
                         case STRIPE_LOG_REFERENCE_JOB:

@@ -98,7 +98,7 @@ switch ($order['order_reference_type']) {
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <?= $order['order_response'] ? '<pre>' . $order['order_response'] . '</pre>' : NA ?>
+                                            <?//= $order['order_response'] ? '<pre>' . $order['order_response'] . '</pre>' : NA ?>
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@ switch ($order['order_reference_type']) {
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <?= $value['order_item_stripe_transfer_response'] ? '<pre>' . $value['order_item_stripe_transfer_response'] . '</pre>' : '' ?>
+                                <?//= $value['order_item_stripe_transfer_response'] ? '<pre>' . $value['order_item_stripe_transfer_response'] . '</pre>' : '' ?>
                             </div>
                         </div>
                     </div>

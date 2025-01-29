@@ -205,7 +205,7 @@ class Home extends MY_Controller
                         //
                         if (!$this->user_data['signup_is_stripe_connected']) {
                             if ($accountId) {
-                                $data['stripe_account'] = $this->resource('accounts', $accountId);
+                                $data['stripe_account'] = $this->model_stripe_log->resource('accounts', $accountId);
                                 // updated account details
                                 $affect_param['signup_account_response'] = $data['stripe_account'] ? (str_replace('Stripe\Account JSON:', '', (string) $data['stripe_account'])) : '';
                             }

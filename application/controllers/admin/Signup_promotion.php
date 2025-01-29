@@ -125,7 +125,7 @@ class Signup_promotion extends MY_Controller
                     $post_data['signup_promotion_type'] = 'promotion';
                     //
                     if($signup['signup_subscription_id']) {
-                        $subscription = $this->resource('subscriptions', $signup['signup_subscription_id']);
+                        $subscription = $this->model_stripe_log->resource('subscriptions', $signup['signup_subscription_id']);
                         if($subscription) {
                             $post_data['signup_promotion_type'] = 'discount';
                         } else {
@@ -204,7 +204,7 @@ class Signup_promotion extends MY_Controller
     private function stripeSession($signup, $post, $class_name)
     {
         if($signup['signup_customer_id']) {
-            $customer = $this->resource('customers', $signup['signup_customer_id']);
+            $customer = $this->model_stripe_log->resource('customers', $signup['signup_customer_id']);
             if(!$customer) {
                 //
                 $customer = $this->model_stripe_log->createStripeResource('customers', [

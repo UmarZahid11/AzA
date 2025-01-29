@@ -862,7 +862,7 @@ class Job extends MY_Controller
                                 $subscriptionDetails = '';
 
                                 try {
-                                    $subscriptionDetails = $this->resource('subscriptions', $subscriptionId);
+                                    $subscriptionDetails = $this->model_stripe_log->resource('subscriptions', $subscriptionId);
                                 } catch (\Exception $e) {
                                     $error = true;
                                     $errorMessage = $e->getMessage();

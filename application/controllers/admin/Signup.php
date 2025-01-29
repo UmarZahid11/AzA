@@ -636,7 +636,7 @@ class Signup extends MY_Controller
                     if(isset($_POST['type']) && $_POST['type'] == 'premium') {
                         //
                         if($signup['signup_subscription_id']) {
-                            $subscription = $this->resource('subscriptions', $signup['signup_subscription_id']);
+                            $subscription = $this->model_stripe_log->resource('subscriptions', $signup['signup_subscription_id']);
                             if($subscription) {
                                 // extend stripe trial expiry
                                 $this->stripe->subscriptions->update(

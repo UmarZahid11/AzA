@@ -35,9 +35,9 @@ class Method extends MY_Controller
         $data['payment_method'] = NULL;
 
         if($this->user_data['signup_subscription_id']) {
-            $subscription = $this->resource('subscriptions', $this->user_data['signup_subscription_id']);
+            $subscription = $this->model_stripe_log->resource('subscriptions', $this->user_data['signup_subscription_id']);
             if($subscription) {
-                $data['payment_method'] = $this->resource('paymentMethods', $subscription->default_payment_method);
+                $data['payment_method'] = $this->model_stripe_log->resource('paymentMethods', $subscription->default_payment_method);
             }
     
             if(!$data['payment_method']) {
@@ -148,15 +148,15 @@ class Method extends MY_Controller
             );
 
             // get setup intent from new session
-            $setup_intent = $this->resource('setupIntents', $session->setup_intent);
+            $setup_intent = $this->model_stripe_log->resource('setupIntents', $session->setup_intent);
 
             if($setup_intent->payment_method) {
                 // get payment method from setup
-                $payment_method = $this->resource('paymentMethods', $setup_intent->payment_method);
+                $payment_method = $this->model_stripe_log->resource('paymentMethods', $setup_intent->payment_method);
 
                 if($payment_method->id) {
                     // fetch current subscription details
-                    $subscription = $this->resource('subscriptions', $this->user_data['signup_subscription_id']);
+                    $subscription = $this->model_stripe_log->resource('subscriptions', $this->user_data['signup_subscription_id']);
 
                     // update payment method of the subscription
                     $this->stripe->subscriptions->update($subscription->id, [
@@ -164,7 +164,7 @@ class Method extends MY_Controller
                     ]);
 
                     // fetch updated subscription
-                    $subscription = $this->resource('subscriptions', $subscription->id);
+                    $subscription = $this->model_stripe_log->resource('subscriptions', $subscription->id);
 
                     // update signup subscription
                     if ($subscription) {

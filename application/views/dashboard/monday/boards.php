@@ -1,6 +1,6 @@
 <div class="dashboard-content posted-theme">
     <div class="float-right d-flex">
-        <a href="javascript:;" class="btn btn-custom">Add Board</a>
+        <button data-fancybox data-animation-duration="700" data-src="#addBoardModal" href="javascript:;" class="btn btn-outline-custom" data-toggle="tooltip" title="" data-bs-placement="top">Add Board</button>
     </div>
     <img src="https://www.vectorlogo.zone/logos/monday/monday-icon.svg" style="width:20px;" />
     <h4>Monday</h4>
@@ -36,5 +36,23 @@
                 <?php endif; ?>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
+</div>
+
+<div class="grid">
+    <div style="display: none;" id="addBoardModal" class="animated-modal">
+        <form class="boardForm" id="boardForm" action="javascript:;" novalidate>
+            <div class="form-group">
+                <label>Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" name="product_request[product_request_description]" maxlength="1000" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Attachment</label>
+                <input type="file" class="form-control font-12" name="product_request_attachment" />
+            </div>
+            <div class="form-group mt-2">
+                <button type="submit" class="btn btn-custom" id="requestFormBtn">Send</button>
+            </div>
+        </form>
     </div>
 </div>

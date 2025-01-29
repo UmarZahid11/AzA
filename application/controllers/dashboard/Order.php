@@ -165,7 +165,7 @@ class Order extends MY_Controller
             $decoded_response = json_decode($data['order']['signup_subscription_response']);
             $default_payment_method = $decoded_response->default_payment_method;
 
-            $data['payment_method'] = $this->resource('paymentMethods', $default_payment_method);
+            $data['payment_method'] = $this->model_stripe_log->resource('paymentMethods', $default_payment_method);
         }
 
         $data['order_items'] = $this->model_order_item->find_all_active(
