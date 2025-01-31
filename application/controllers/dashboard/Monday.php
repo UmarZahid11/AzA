@@ -264,6 +264,147 @@ class Monday extends MY_Controller
     }
 
     /**
+     * saveColumn function
+     *
+     * @return void
+     */
+    function saveColumn()
+    {
+        $json_param['status'] = FALSE;
+        $json_param['txt'] = ERROR_MESSAGE;
+        $json_param['id'] = 0;
+        $referenceDetail = [];
+
+        if ($this->model_signup->hasPremiumPermission()) {
+            if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
+
+                $id = isset($_POST['id']) && $_POST['id'] ? $_POST['id'] : '';
+                $board_id = isset($_POST['board_id']) && $_POST['board_id'] ? $_POST['board_id'] : '';
+                $title = isset($_POST['title']) && $_POST['title'] ? $_POST['title'] : '';
+                $type = isset($_POST['type']) && $_POST['type'] ? $_POST['type'] : '';
+
+                if ($board_id) {
+                    $boardDetail = $this->query('query { boards (ids: ' . $board_id . ') { id name } }');
+                    if ($boardDetail) {
+
+                        if ($id) {
+                            $referenceDetail = $this->query('mutation {
+                                change_column_title (board_id: ' . $board_id . ', column_id: "' . $id . '", title: "' . $title . '") {
+                                  id
+                                }
+                            }');
+                            if ($referenceDetail) {
+                                $json_param['id'] = isset($referenceDetail['data']) ? $referenceDetail['data']['change_column_title']['id'] : '';
+                            }
+                        } else {
+                            $referenceDetail = $this->query('mutation{
+                                create_column(board_id: ' . $board_id . ', title:"' . $title . '", column_type:' . $type . ') {
+                                    id
+                                    title
+                                }
+                            }');
+                            if ($referenceDetail) {
+                                $json_param['id'] = isset($referenceDetail['data']) ? $referenceDetail['data']['create_column']['id'] : '';
+                            }
+                        }
+
+                        if (isset($referenceDetail['error_code'])) {
+                            if (isset($referenceDetail['error_message']) && $referenceDetail['error_message']) {
+                                $json_param['txt'] = $referenceDetail['error_message'];
+                            } else {
+                                $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
+                            }
+                        } else {
+                            if ($json_param['id']) {
+                                $json_param['status'] = TRUE;
+                                $json_param['txt'] = SUCCESS_MESSAGE;
+                            } else {
+                                $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
+                            }
+                        }
+                    } else {
+                        $json_param['txt'] = __(ERROR_MESSAGE_INVALID_PAYLOAD);
+                    }
+                } else {
+                    $json_param['txt'] = __(ERROR_MESSAGE_INVALID_PAYLOAD);
+                }
+            } else {
+                $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
+            }
+        } else {
+            $json_param['txt'] = __(ERROR_MESSAGE_INSUFFICIENT_PRIVILEGE);
+        }
+
+        echo json_encode($json_param);
+    }
+
+    /**
+     * saveColumnValue
+     *
+     * @return void
+     */
+    function saveColumnValue()
+    {
+        $json_param['status'] = FALSE;
+        $json_param['txt'] = ERROR_MESSAGE;
+        $json_param['id'] = 0;
+        $referenceDetail = [];
+
+        if ($this->model_signup->hasPremiumPermission()) {
+            if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
+
+                $board_id = isset($_POST['board_id']) && $_POST['board_id'] ? $_POST['board_id'] : '';
+                $item_id = isset($_POST['item_id']) && $_POST['item_id'] ? $_POST['item_id'] : '';
+                $column_id = isset($_POST['column_id']) && $_POST['column_id'] ? $_POST['column_id'] : '';
+                $value = isset($_POST['value']) && $_POST['value'] ? $_POST['value'] : '';
+
+                if ($board_id) {
+                    $boardDetail = $this->query('query { boards (ids: ' . $board_id . ') { id name } }');
+                    if ($boardDetail) {
+
+                        if ($column_id) {
+                            $referenceDetail = $this->query('mutation {
+                                change_column_value (board_id: ' . $board_id . ', item_id: ' . $item_id . ', column_id: "' . $column_id . '", value: "{\"text\":\"' . $value . '\"}") {
+                                    id
+                                }
+                            }');
+
+                            if ($referenceDetail) {
+                                $json_param['id'] = isset($referenceDetail['data']) ? $referenceDetail['data']['change_column_value']['id'] : '';
+                            }
+
+                            if (isset($referenceDetail['error_code'])) {
+                                if (isset($referenceDetail['error_message']) && $referenceDetail['error_message']) {
+                                    $json_param['txt'] = $referenceDetail['error_message'];
+                                } else {
+                                    $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
+                                }
+                            } else {
+                                if ($json_param['id']) {
+                                    $json_param['status'] = TRUE;
+                                    $json_param['txt'] = SUCCESS_MESSAGE;
+                                } else {
+                                    $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
+                                }
+                            }
+                        }
+                    } else {
+                        $json_param['txt'] = __(ERROR_MESSAGE_INVALID_PAYLOAD);
+                    }
+                } else {
+                    $json_param['txt'] = __(ERROR_MESSAGE_INVALID_PAYLOAD);
+                }
+            } else {
+                $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
+            }
+        } else {
+            $json_param['txt'] = __(ERROR_MESSAGE_INSUFFICIENT_PRIVILEGE);
+        }
+
+        echo json_encode($json_param);
+    }
+
+    /**
      * deleteBoard function
      *
      * @return void
@@ -292,7 +433,7 @@ class Monday extends MY_Controller
                                 $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
                             }
                         } else {
-                            if(isset($referenceDetail['data']['delete_board']['id']) && $referenceDetail['data']['delete_board']['id']) {
+                            if (isset($referenceDetail['data']['delete_board']['id']) && $referenceDetail['data']['delete_board']['id']) {
                                 $json_param['status'] = TRUE;
                                 $json_param['txt'] = SUCCESS_MESSAGE;
                             }
@@ -340,7 +481,7 @@ class Monday extends MY_Controller
                                 $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
                             }
                         } else {
-                            if(isset($referenceDetail['data']['delete_group']['id']) && $referenceDetail['data']['delete_group']['id']) {
+                            if (isset($referenceDetail['data']['delete_group']['id']) && $referenceDetail['data']['delete_group']['id']) {
                                 $json_param['status'] = TRUE;
                                 $json_param['txt'] = SUCCESS_MESSAGE;
                             }
@@ -360,7 +501,7 @@ class Monday extends MY_Controller
     }
 
     /**
-     * deleteGroup function
+     * deleteItem function
      *
      * @return void
      */
@@ -387,7 +528,54 @@ class Monday extends MY_Controller
                                 $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
                             }
                         } else {
-                            if(isset($referenceDetail['data']['delete_item']['id']) && $referenceDetail['data']['delete_item']['id']) {
+                            if (isset($referenceDetail['data']['delete_item']['id']) && $referenceDetail['data']['delete_item']['id']) {
+                                $json_param['status'] = TRUE;
+                                $json_param['txt'] = SUCCESS_MESSAGE;
+                            }
+                        }
+                    }
+                } else {
+                    $json_param['txt'] = __(ERROR_MESSAGE_INVALID_PAYLOAD);
+                }
+            } else {
+                $json_param['txt'] = __(ERROR_MESSAGE_LINK_EXPIRED);
+            }
+        } else {
+            $json_param['txt'] = __(ERROR_MESSAGE_INSUFFICIENT_PRIVILEGE);
+        }
+
+        echo json_encode($json_param);
+    }
+
+    /**
+     * deleteItemColumn function
+     *
+     * @return void
+     */
+    function deleteItemColumn()
+    {
+        $json_param['status'] = FALSE;
+        $json_param['txt'] = ERROR_MESSAGE;
+        $referenceDetail = [];
+
+        if ($this->model_signup->hasPremiumPermission()) {
+            if (isset($_POST['_token']) && $this->verify_csrf_token($_POST['_token'])) {
+                if ((isset($_POST['board_id']) && $_POST['board_id']) && (isset($_POST['group_id']) && $_POST['group_id']) && (isset($_POST['id']) && $_POST['id'])) {
+                    $boardDetail = $this->query('query { boards (ids: ' . $_POST['board_id'] . ') { id name } }');
+                    if ($boardDetail) {
+                        $referenceDetail = $this->query('mutation {
+                            delete_column (board_id: ' . $_POST['board_id'] . ', column_id: "' . $_POST['id'] . '") {
+                                id
+                            }
+                        }');
+                        if (isset($referenceDetail['error_code'])) {
+                            if (isset($referenceDetail['error_message']) && $referenceDetail['error_message']) {
+                                $json_param['txt'] = $referenceDetail['error_message'];
+                            } else {
+                                $json_param['txt'] = ERROR_MESSAGE_INVALID_PAYLOAD;
+                            }
+                        } else {
+                            if (isset($referenceDetail['data']['delete_column']['id']) && $referenceDetail['data']['delete_column']['id']) {
                                 $json_param['status'] = TRUE;
                                 $json_param['txt'] = SUCCESS_MESSAGE;
                             }
