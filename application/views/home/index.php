@@ -83,7 +83,7 @@
                         <span>all in one centralized platform.</span>
                     </p>
                     <div class="text-end mt-5">
-                        <a href="<?= l('home/subscription') ?>" class="btn-grdient btn-1">Get Started Today <i
+                        <a href="#signup" class="btn-grdient btn-1">Get Started Today <i
                                 class="fa-regular fa-arrow-right-long"></i></a>
                     </div>
                 </div>
@@ -91,7 +91,45 @@
         </div>
     </div>
 </section>
-<section class="features-secs">
+<section class="bussiness-transform-sec">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 text-center mb-5">
+                <h3>Transform Your Business with AzAverze</h3>
+                <p>Save Time, Cut Costs, & Scale Faster!</p>
+            </div>
+            <div class="col-md-3">
+                <div class="sdfg-box">
+                    <i class="fa-solid fa-clock"></i>
+                    <h5><span>Save</span> 10+ Hours Per Week</h5>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="sdfg-box">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                    <h5><span>Save</span> Over $5,000 Per Year</h5>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="sdfg-box">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h5><span>Grow</span> Your Business Smarter</h5>
+                </div>
+            </div>
+            <div class="col-md-10 text-center mb-5 mt-5">
+                <p>Small Business Owners & Coaches Waste Thousands on Tools & Admin Work</p>
+                <h3>AzAverze Fixes That!</h3>
+            </div>
+            <div class="col-md-6 text-center">
+                <p>Most entrepreneurs juggle 5-10 software subscriptions, spend 10+ hours per week on admin tasks, and struggle to scale efficiently.</p>
+            </div>
+            <div class="col-md-10 text-center mt-5">
+                <p class="tile-styl">AzAverze combines all your essential tools into one streamlined platform – saving you money, time, and stress.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="features-secs" id="features">
     <div class="container">
         <div class="row">
             <div class="col-md-6">
@@ -106,7 +144,7 @@
                         </text>
                     </svg>
                     <img src="<?= g('images_root') ?>rouned-iconns.png" alt="">
-                    <a href="<?= l('home/subscription') ?>" class="btn-1">Get Started Today</a>
+                    <a href="#signup" class="btn-1">Get Started Today</a>
                 </div>
             </div>
             <div class="col-md-6 position-relative">
@@ -119,7 +157,7 @@
                     </div>
                 </div>
                 <div class="rounded-parent rd2">
-                    <h4>provides financial account and identity verification</h4>
+                    <h4>ALLOWS SMOOTH PROJECT MANAGEMENT</h4>
                     <div class="icon-wrapper">
                         <div class="rounded-icon">
                             <img src="<?= g('images_root') ?>avb2.webp" alt="">
@@ -127,7 +165,7 @@
                     </div>
                 </div>
                 <div class="rounded-parent rd3">
-                    <h4>provides financial account and identity verification</h4>
+                    <h4>document management</h4>
                     <div class="icon-wrapper">
                         <div class="rounded-icon">
                             <img src="<?= g('images_root') ?>avb4.webp" alt="">
@@ -135,7 +173,7 @@
                     </div>
                 </div>
                 <div class="rounded-parent rd4">
-                    <h4>provides financial account and identity verification</h4>
+                    <h4>handle all your accounting needs</h4>
                     <div class="icon-wrapper">
                         <div class="rounded-icon">
                             <img src="<?= g('images_root') ?>avb3.webp" alt="">
@@ -160,8 +198,144 @@
                     <p>Running a small business is challenging enough without the hassle of managing multiple
                         subscriptions and tools. AzAverze integrates the most powerful business applications
                         directly into our platform, so you can focus on what matters—growing your business.</p>
-                    <a href="<?= l('home/subscription') ?>">Get Started Today <i class="fa-light fa-arrow-right-long"></i></a>
+                    <a href="#signup">Get Started Today <i class="fa-light fa-arrow-right-long"></i></a>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="table-pricing">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <h2>How Much <span>Money</span> Can You Save?</h2>
+                <p>AzAverze replaces multiple software subscriptions with a single, cost-effective solution.</p>
+            </div>
+            <div></div>
+            <div class="col-md-4">
+                <div class="prict" style="--box: #83dae5">
+                    <h6>Traditional Software Costs</h6>
+                    <div class="bodyprct">
+                        <p><b>QUICKBOOKS</b> (Accounting)</p>
+                        <p><b>MONDAY</b> (Project Management/CRM)</p>
+                        <p><b>BOX</b> (Document/Cloud Management)</p>
+                        <p><b>PLAID</b> (Secure Financial Account Verification/Connection)</p>
+                        <p><b>ZOOM WEBINAR</b> (Client Engagement)</p>
+                        <p><b>TOTAL COSTS WITHOUT AZAVERZE</b></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #6356e7">
+                            <h6>Cost Without AzAverze</h6>
+                            <div class="bodyprct">
+                                <p><b>$40 – $200/</b>month</p>
+                                <p><b>$30 – $150/</b>month</p>
+                                <p><b>$15 – $60/</b>month</p>
+                                <p><b>$30 – $100/</b>month</p>
+                                <p><b>$40 – $150/</b>month</p>
+                                <p><b>$200 – $700/</b>month</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #f67587">
+                            <h6>With AzAverze</h6>
+                            <div class="bodyprct">
+                                <p>Included</p>
+                                <p>Included</p>
+                                <p>Included</p>
+                                <p>Included</p>
+                                <p>Included</p>
+                                <p><b>All-in-one Subscription</b></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #8c52ff">
+                            <h6>Annual Savings</h6>
+                            <div class="bodyprct">
+                                <p><b>Save $2,400/</b>year</p>
+                                <p><b>Save $1,800/</b>year</p>
+                                <p><b>Save $720/</b>year</p>
+                                <p><b>Save $1,200/</b>year</p>
+                                <p><b>Save $1,800/</b>year</p>
+                                <p><b>$5,000+ in Annual Savings!</b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="tile-rfgt"><span>One Simple Platform =</span> Fewer Expenses, No Hassle, More Growth!</div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="table-pricing second">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center">
+                <h2>How Much <span>Time</span> Can You Save?</h2>
+                <p>Small business owners spend up to 40% of their workweek on manual tasks that can be automated. <br> <b>AzAverze helps you reclaim that time!</b></p>
+            </div>
+            <div></div>
+            <div class="col-md-4">
+                <div class="prict" style="--box: #9a3abf">
+                    <h6>Time-Consuming Task</h6>
+                    <div class="bodyprct">
+                        <p>Bookkeeping & Invoicing</p>
+                        <p>Project & Task Management</p>
+                        <p>Social Media & Marketing</p>
+                        <p>Webinar & Client Engagement</p>
+                        <p><b>Total Admin Work Without AzAverze</b></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #f67587">
+                            <h6>Hours Spent Per Week</h6>
+                            <div class="bodyprct">
+                                <p><b>6+</b>hours</p>
+                                <p><b>4+</b>hours</p>
+                                <p><b>5+</b>hours</p>
+                                <p><b>4+</b>hours</p>
+                                <p><b>19+ hours</b></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #83dae5">
+                            <h6>With AzAverze <span>(Automated & Streamlined)</span></h6>
+                            <div class="bodyprct">
+                                <p>Automated with QuickBooks & Plaid</p>
+                                <p>Centralized with Monday.com</p>
+                                <p>Built-in social platform & AI scheduling</p>
+                                <p>Integrated Zoom Webinar & automation</p>
+                                <p><b>Fully Integrated & Automated</b></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prict" style="--box: #6356e7">
+                            <h6>Time Saved Per Year</h6>
+                            <div class="bodyprct">
+                                <p>312+ hours <b>(13 days)</b></p>
+                                <p>208+ hours <b>(13 days)</b></p>
+                                <p>260+ hours <b>(13 days)</b></p>
+                                <p>208+ hours <b>(13 days)</b></p>
+                                <p><b>988+ hours/year (41 days)</b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="tile-sdaf">Free Up Over a Month of Your Time Every Year <span>– Focus on Growing Your Business!</span></div>
             </div>
         </div>
     </div>
@@ -174,7 +348,7 @@
         <div class="cont-eseca">
             <h2><span>What You Get</span> with AzAverze</h2>
             <p>A Comprehensive Suite of Business <br> Management Applications</p>
-            <a href="<?= l('home/subscription') ?>" class="btn-1">Get Started Today <i class="fa-light fa-arrow-right-long"></i></a>
+            <a href="#signup" class="btn-1">Get Started Today <i class="fa-light fa-arrow-right-long"></i></a>
         </div>
         <div class="line-box-srw">
             <img src="<?= g('images_root') ?>line-cureved.png" alt="">
@@ -226,6 +400,76 @@
                         invoicing, and keep your books balanced—all without leaving AzAverze.</p>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+<section class="new-mock-sec">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <img src="<?= g('images_root') ?>new-left.png" class="w-100" />
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="sdfrt-box">
+                            <h5>
+                                Save Over $5,000/Year
+                                <img src="<?= g('images_root') ?>check-icon.png" />
+                            </h5>
+                            <p>Cut unnecessary software costs with one powerful all-in-one platform.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="sdfrt-box">
+                            <h5>
+                                Save Over $5,000/Year
+                                <img src="<?= g('images_root') ?>check-icon.png" />
+                            </h5>
+                            <p>Cut unnecessary software costs with one powerful all-in-one platform.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="sdfrt-box">
+                            <h5>
+                                Save Over $5,000/Year
+                                <img src="<?= g('images_root') ?>check-icon.png" />
+                            </h5>
+                            <p>Cut unnecessary software costs with one powerful all-in-one platform.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="sdfrt-box">
+                            <h5>
+                                Save Over $5,000/Year
+                                <img src="<?= g('images_root') ?>check-icon.png" />
+                            </h5>
+                            <p>Cut unnecessary software costs with one powerful all-in-one platform.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="sdfrt-box">
+                            <h5>
+                                Save Over $5,000/Year
+                                <img src="<?= g('images_root') ?>check-icon.png" />
+                            </h5>
+                            <p>Cut unnecessary software costs with one powerful all-in-one platform.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="new-after-sec">
+    <div class="container">
+        <div class="text-center">
+            <img src="<?= g('images_root') ?>clock-icon.png" />
+            <h3>Ready to <span>Stop Overpaying</span> & <span>Start Scaling Smarter?</span></h3>
+            <p>Join thousands of small business owners and coaches who are <br> <span>saving time, cutting costs, and scaling faster</span> with AzAverze.</p>
+            <div class="saasda"><span>Get Started Today</span> – Your First 2 months Are <span>FREE!</span></div><br/>
+            <a class="btn-1" href="">Start Your Free Trial</a>
+            <a class="btn-2" href="">See How It Works</a>
         </div>
     </div>
 </section>
@@ -293,11 +537,10 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <p>Unlock the full potential of your business with AzAverze for just <span>$399.99/month. </span> No
-                    hidden fees, no separate subscriptions—just a single investment in your success.</p>
+                <p>Unlock the full potential of your business with AzAverze. No hidden fees, no separate subscriptions—just a single investment in your success.</p>
             </div>
             <div class="col-md-6 text-end">
-                <a href="<?= l('home/subscription') ?>" class="btn-grdient btn-1">Get Started Today <i
+                <a href="#signup" class="btn-grdient btn-1">Get Started Today <i
                         class="fa-regular fa-arrow-right-long"></i></a>
             </div>
         </div>
@@ -317,7 +560,7 @@
             </div>
         </div>
         <div class="text-center mt-5">
-            <a href="<?= l('home/subscription') ?>" class="btn-1">Get Started Today</a>
+            <a href="#signup" class="btn-1">Get Started Today</a>
         </div>
     </div>
 </section>

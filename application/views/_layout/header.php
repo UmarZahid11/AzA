@@ -1,6 +1,6 @@
 <?php if($this->router->class != 'verification'): ?>
 
-<div class="sidebar">
+<div class="sidebar d-none">
     <ul id="menu">
 
         <li class="home"><a href="<?= l('') ?>#home"><i class="fa-light fa-house"></i> <span><?= $config['title'] ?> </span></a></li>
@@ -75,38 +75,72 @@
 
 <?php if($this->router->class == 'home' && $this->router->method == 'index'): ?>
 <section class="banner-nbew">
-    <img src="<?= g('images_root') ?>side-shape.jpg" alt="">
+    <img src="<?= g('images_root') ?>side-shape.png" alt="" />
     <div class="container">
-        <div class="logoas">
-            <a href="<?= l('') ?>">
-                <img src="<?= g('images_root') ?>logo-hopri.png" width="150" alt="">
-            </a>
+        <div class="row align-items-center">
+            <div class="col-md-2">
+                <div class="logoas">
+                    <a href="<?= l('') ?>">
+                        <img src="<?= g('images_root') ?>logo-hopri.png" width="150" alt="">
+                    </a>
+                </div>  
+            </div>
+            <div class="col-md-5">
+                <div class="nav-links-top">
+                    <a href="<?= l('') ?>">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#membrshp"><i class="fa-solid fa-tag"></i> Pricing</a>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="side-action-top">
+                    <?php if ($this->userid > 0): ?>
+                        <a href="<?= l('dashboard') ?>"><i class="fa-solid fa-user"></i> Dashboard</a>
+                        <a href="#signup" class="btn-1">Logout <i class="fa-light fa-arrow-right-to-bracket"></i></a>
+                    <?php else: ?>
+                        <a href="<?= l('login') ?>"><i class="fa-solid fa-user"></i> Login</a>
+                        <a href="<?= l('logout') ?>" class="btn-1">Sign Up <i class="fa-light fa-arrow-right-to-bracket"></i></a>
+                    <?php endif; ?>
+                    <?php if(g('db.admin.discovery_call_link')): ?>
+                        <a class="discovery_call_link btn-1" href="<?= g('db.admin.discovery_call_link') ?>" target="_blank">Book A Discovery Call</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
         <div class="content-wrapp-bne">
             <div class="row justify-content-between align-items-center">
                 <div class="col-md-6">
-                    <h2>Empower Your Business with AzAverze: <br> Your <span>All-in-One Platform</span> for Success
+                    <h2>
+                        Empower Your Business with AzAverze: <br /> Your <span>All-in-One Platform</span> for Success
                     </h2>
-                    <p>Streamline Operations, Boost Efficiency, and Connect Directly with Customers—all in one
-                        place.</p>
-                    <a href="<?= l('home/subscription') ?>" class="btn-1">Get Started Today</a>
-                    <a href="https://azaverze.com/coming-soon/v3/images/video.mp4" data-fancybox class="btn-paly"><i class="fa-solid fa-play"></i> Learn more</a>
-                    <p>No separate subscriptions needed.</p>
+                    <p>
+                        Streamline Operations, Boost Efficiency, and Connect Directly with Customers—all in one place.
+                    </p>
+                    <a href="#signup" class="btn-1">
+                        Get Started Today
+                    </a>
+                    <a href="<?= l('') ?>coming-soon/v3/images/video.mp4" data-fancybox class="btn-paly">
+                        <i class="fa-solid fa-play"></i> 
+                        Learn more
+                    </a>
+                    <p>
+                        No separate subscriptions needed.
+                    </p>
                 </div>
-                <div class="col-md-5">
-                    <img src="<?= g('images_root') ?>screen-load.png" alt="" class="sceresa">
+                <div class="col-md-6">
+                    <img src="<?= g('images_root') ?>screen-load.png" alt="" class="sceresa" />
                 </div>
             </div>
         </div>
     </div>
     <div class="barsd1">
-        <img src="<?= g('images_root') ?>barrs.svg" alt="">
+        <img src="<?= g('images_root') ?>barrs.svg" alt="" />
     </div>
     <div class="barsd2">
-        <img src="<?= g('images_root') ?>barrs.svg" alt="">
+        <img src="<?= g('images_root') ?>barrs.svg" alt="" />
     </div>
     <div class="shapersimg">
-        <img src="<?= g('images_root') ?>shape1.png" alt="">
+        <img src="<?= g('images_root') ?>shape1.png" alt="" />
     </div>
 </section>
 <?php endif; ?>
